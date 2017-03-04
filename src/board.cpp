@@ -144,7 +144,7 @@ void Board::doMove(Move *m, Side side) {
 /**
  * Returns true if there are legal moves for the given side.
  */
-vector<Move> Board::hasMoves(Side side) {
+vector<Move> Board::getMoves(Side side) {
     vector<Move> moves;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
@@ -193,4 +193,9 @@ void Board::setBoard(char data[]) {
             taken.set(i);
         }
     }
+}
+
+pair<unsigned long long, unsigned long long> Board::to_normal_form() {
+    /// TODO: make any symmetrical boards map to the same value.
+    return make_pair(taken.to_ullong(), black.to_ullong());
 }

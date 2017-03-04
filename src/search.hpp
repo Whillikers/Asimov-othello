@@ -1,24 +1,25 @@
 #pragma once
 
-#include "board.hpp"
+#include"heuristic.hpp"
+#include"transposition.hpp"
+#include"board.hpp"
+#include <utility>
+
+//When iterative deepening is about to quit on timeout, but a sudden drop in
+//score is detected, we want to continue searching one more depth.
+//currently an arbitrary value.
+#define ID_DROP_THRESHOLD   10.5
 
 namespace asimov {
 
-    enum SearchType {
-        MTDF
-    };
-
     class Search {
     private:
+    protected:
+        Heuristic *h;
     public:
-        Search();
+        Search(Heuristic * _h);
         ~Search();
 
-        Move search(Board *b, SearchType type, int max_time, int max_depth);
-
-        float alpha_beta_search(Board *b, float a, float b, int d);
-
-        float mtdf(Board b*, float guess, int d);
-        Move mtdf_id(Board *b, int max_time);
+        virtual Move search(Board *b, int max_time, int max_depth, Side turn) = 0;
     };
 }

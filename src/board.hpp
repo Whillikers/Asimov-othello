@@ -3,6 +3,7 @@
 
 #include <bitset>
 #include <vector>
+#include <utility>
 #include "common.hpp"
 using namespace std;
 
@@ -32,6 +33,7 @@ public:
     int countWhite();
 
     void setBoard(char data[]);
+    pair<unsigned long long, unsigned long long> to_normal_form();
 };
 
 #endif

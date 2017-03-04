@@ -13,7 +13,17 @@ DOCGENFLAGS =
 DEBUGFLAGS =
 
 COMMON_SRCS = board.cpp wrapper.cpp player.cpp
-ASIMOV_SRCS = search.cpp opening.cpp heuristic.cpp
+
+#Source files for each search algorithm
+SEARCH_SRCS = mtdf.cpp
+#Source files for each heuristic method
+HEURIS_SRCS = basic.cpp lin_fit.cpp
+
+#Source files for the full AI player
+ASIMOV_SRCS = search.cpp opening.cpp heuristic.cpp transposition.cpp\
+	$(addprefix search_alg/,$(SEARCH_SRCS)) \
+	$(addprefix heuristics/,$(HEURIS_SRCS))
+
 TESTGAME_SRCS = testgame.cpp
 TESTMINIMAX_SRCS = testgame.cpp
 
@@ -29,10 +39,12 @@ all: $(BINS)
 docs:
 	$(DOCGEN)
 
+#Debug target to generate debug symbols
 asimov-debug: DEBUGFLAGS = -ggdb
 asimov-debug: asimov
 
 asimov: $(addprefix $(OBJDIR)/,$(ASIMOV_OBJS))
+	echo $(ASIMOV_OBJS)
 	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
 
 testgame: $(addprefix $(OBJDIR)/,$(TESTGAME_OBJS))
@@ -42,10 +54,11 @@ testminimax: $(addprefix $(OBJDIR)/,$(TESTMINIMAX_OBJS))
 	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/$(notdir %.cpp)
+	mkdir -p $(dir $@)
 	$(CC) -c $(CPPFLAGS) $(DEBUGFLAGS) $< -o $@
 
 clean:
-	rm -f $(addprefix $(BINDIR)/,$(BINS)) $(OBJDIR)/*.o
+	rm -rf $(addprefix $(BINDIR)/,$(BINS)) $(OBJDIR)/*.o
 
 clean-docs:
 	rm -r $(DOCDIR)/*

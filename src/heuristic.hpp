@@ -1,15 +1,17 @@
 #pragma once
 
-namespace asimov {
-    enum HeuristicType {
-        LINEAR_FIT
-    };
+#include "board.hpp"
 
+namespace asimov {
+
+    /**
+     * @brief an abstract class that represents a heuristic function.
+     */
     class Heuristic {
     private:
 
     public:
         Heuristic();
-        float evaluate(Board *b, HeuristicType type);
+        virtual float evaluate(Board *b) = 0;
     };
 }
