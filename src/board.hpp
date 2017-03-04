@@ -7,6 +7,8 @@
 #include "common.hpp"
 using namespace std;
 
+typedef pair<unsigned long long, unsigned long long> BoardNormalForm;
+
 class Board {
 
 private:
@@ -17,6 +19,10 @@ private:
     bool get(Side side, int x, int y);
     void set(Side side, int x, int y);
     bool onBoard(int x, int y);
+
+    Board rotate_90_ccw();
+    Board flip();
+    BoardNormalForm to_num_form();
 
 public:
     Board();
@@ -33,7 +39,8 @@ public:
     int countWhite();
 
     void setBoard(char data[]);
-    pair<unsigned long long, unsigned long long> to_normal_form();
+
+    BoardNormalForm to_normal_form();
 };
 
 #endif

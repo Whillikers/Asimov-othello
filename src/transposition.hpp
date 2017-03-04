@@ -10,7 +10,7 @@ using namespace std;
 
 namespace asimov {
 
-    typedef pair<unsigned long long, unsigned long long> TranspositionKey;
+    typedef BoardNormalForm TranspositionKey;
 
     struct TableValue {
         float lowerbound;

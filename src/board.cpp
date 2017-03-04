@@ -195,7 +195,66 @@ void Board::setBoard(char data[]) {
     }
 }
 
-pair<unsigned long long, unsigned long long> Board::to_normal_form() {
-    /// TODO: make any symmetrical boards map to the same value.
+/**
+ * @brief Rotates the board 90 degrees CCW
+ */
+Board rotate_90_ccw() {
+    Board b = Board();
+    for (size_t x = 0; x < 8; x++) {
+        for (size_t y = 0; y < 8; y++) {
+            if (get(WHITE, x, y)) {
+                b->set(WHITE, 7-y, x);
+            } else if get(BLACK, x, y) {
+                b->set(BLACK, 7-y, x);
+            }
+        }
+    }
+    return b;
+}
+
+/**
+ * @brief Flips the board on the x axis
+ */
+Board flip() {
+    Board b = Board();
+    for (size_t x = 0; x < 8; x++) {
+        for (size_t y = 0; y < 8; y++) {
+            if (get(WHITE, x, y)) {
+                b->set(WHITE, 7-x, y);
+            } else if get(BLACK, x, y) {
+                b->set(BLACK, 7-x, y);
+            }
+        }
+    }
+    return b;
+}
+
+BoardNormalForm Board::to_num_form() {
     return make_pair(taken.to_ullong(), black.to_ullong());
+}
+
+BoardNormalForm Board::to_normal_form() {
+    Board curr = *this;
+    BoardNormalForm tmp, minimum = to_num_form();
+    for (size_t i = 0; i < 3; i++) {
+        curr = curr.rotate_90_ccw();
+        tmp = curr.to_num_form();
+        if (tmp < minimum) {
+            minimum = tmp;
+        }
+    }
+    curr = curr.flip();
+    tmp = curr.to_num_form();
+    if (tmp < minimum) {
+        minimum = tmp;
+    }
+    for (size_t i = 0; i < 3; i++) {
+        curr = curr.rotate_90_ccw();
+        tmp = curr.to_num_form();
+        if (tmp < minimum) {
+            minimum = tmp;
+        }
+    }
+
+    return minimum;
 }
