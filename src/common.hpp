@@ -12,11 +12,16 @@ class Move {
 
 public:
     int x, y;
+    bool pass;
     Move(int x, int y) {
         this->x = x;
         this->y = y;
     }
     ~Move() {}
+
+    bool isPass() {
+        return x == -1 && y == -1;
+    }
 
     int getX() { return x; }
     int getY() { return y; }

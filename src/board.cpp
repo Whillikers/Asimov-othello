@@ -1,6 +1,14 @@
 #include "board.hpp"
 
-/*
+Board Board::empty() {
+    Board b;
+    b.taken.reset();
+    b.black.reset();
+
+    return b;
+}
+
+/**
  * Make a standard 8x8 othello board and initialize it to the standard setup.
  */
 Board::Board() {
@@ -41,6 +49,15 @@ void Board::set(Side side, int x, int y) {
     black.set(x + 8*y, side == BLACK);
 }
 
+void Board::flip(int x, int y) {
+    black.flip(x + 8*y);
+}
+
+void Board::clear(int x, int y) {
+    taken.reset(x + 8*y);
+    black.reset(x + 8*y);
+}
+
 bool Board::onBoard(int x, int y) {
     return(0 <= x && x < 8 && 0 <= y && y < 8);
 }
@@ -61,7 +78,7 @@ bool Board::hasMoves(Side side) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             Move move(i, j);
-            if (checkMove(&move, side)) return true;
+            if (checkMove(move, side)) return true;
         }
     }
     return false;
@@ -70,12 +87,12 @@ bool Board::hasMoves(Side side) {
 /*
  * Returns true if a move is legal for the given side; false otherwise.
  */
-bool Board::checkMove(Move *m, Side side) {
+bool Board::checkMove(Move m, Side side) {
     // Passing is only legal if you have no moves.
-    if (m == nullptr) return !hasMoves(side);
+    if (m.isPass()) return !hasMoves(side);
 
-    int X = m->getX();
-    int Y = m->getY();
+    int X = m.getX();
+    int Y = m.getY();
 
     // Make sure the square hasn't already been taken.
     if (occupied(X, Y)) return false;
@@ -101,22 +118,28 @@ bool Board::checkMove(Move *m, Side side) {
     return false;
 }
 
-/*
+/**
  * Modifies the board to reflect the specified move.
  */
-void Board::doMove(Move *m, Side side) {
+MoveResult Board::doMove(Move m, Side side) {
+    MoveResult mr = MoveResult();
     // A nullptr move means pass.
-    if (m == nullptr) return;
+    if (m.isPass()) return mr;
+
+
+    int X = mr.x = m.getX();
+    int Y = mr.y = m.getY();
 
     // Ignore if move is invalid.
-    if (!checkMove(m, side)) return;
+    if (!checkMove(m, side)) return mr;
 
-    int X = m->getX();
-    int Y = m->getY();
+
     Side other = (side == BLACK) ? WHITE : BLACK;
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             if (dy == 0 && dx == 0) continue;
+
+            int c = 0;
 
             int x = X;
             int y = Y;
@@ -131,14 +154,40 @@ void Board::doMove(Move *m, Side side) {
                 x += dx;
                 y += dy;
                 while (onBoard(x, y) && get(other, x, y)) {
+                    c++;
                     set(side, x, y);
                     x += dx;
                     y += dy;
                 }
+                mr.set(dx, dy, c);
             }
         }
     }
     set(side, X, Y);
+    return mr;
+}
+
+/**
+ * @brief Undoes the last move (described by `mr` is returned by doMove)
+ */
+void Board::undoMove(MoveResult mr, Side s) {
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            if (dy == 0 && dx == 0) continue;
+            int c = mr.get(dx, dy);
+
+            int x = mr.x;
+            int y = mr.y;
+
+            for(int i = 0; i < c; i++) {
+                x += dx;
+                y += dy;
+                flip(x,y);
+            }
+        }
+    }
+
+    clear(mr.x, mr.y);
 }
 
 /**
@@ -149,7 +198,7 @@ vector<Move> Board::getMoves(Side side) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             Move move(i, j);
-            if (checkMove(&move, side)) {
+            if (checkMove(move, side)) {
                 moves.push_back(move);
             }
         }
@@ -157,28 +206,28 @@ vector<Move> Board::getMoves(Side side) {
     return moves;
 }
 
-/*
+/**
  * Current count of given side's stones.
  */
 int Board::count(Side side) {
     return (side == BLACK) ? countBlack() : countWhite();
 }
 
-/*
+/**
  * Current count of black stones.
  */
 int Board::countBlack() {
     return black.count();
 }
 
-/*
+/**
  * Current count of white stones.
  */
 int Board::countWhite() {
     return taken.count() - black.count();
 }
 
-/*
+/**
  * Sets the board state given an 8x8 char array where 'w' indicates a white
  * piece and 'b' indicates a black piece. Mainly for testing purposes.
  */
@@ -195,7 +244,83 @@ void Board::setBoard(char data[]) {
     }
 }
 
-pair<unsigned long long, unsigned long long> Board::to_normal_form() {
-    /// TODO: make any symmetrical boards map to the same value.
+/**
+ * @brief Rotates the board 90 degrees CCW
+ */
+Board Board::rotate_90_ccw() {
+    Board b = Board();
+    for (size_t x = 0; x < 8; x++) {
+        for (size_t y = 0; y < 8; y++) {
+            if (get(WHITE, x, y)) {
+                b.set(WHITE, 7-y, x);
+            } else if (get(BLACK, x, y)) {
+                b.set(BLACK, 7-y, x);
+            }
+        }
+    }
+    return b;
+}
+
+/**
+ * @brief Flips the board on the x axis
+ */
+Board Board::flip_horizontal() {
+    Board b = Board();
+    for (size_t x = 0; x < 8; x++) {
+        for (size_t y = 0; y < 8; y++) {
+            if (get(WHITE, x, y)) {
+                b.set(WHITE, 7-x, y);
+            } else if (get(BLACK, x, y)) {
+                b.set(BLACK, 7-x, y);
+            }
+        }
+    }
+    return b;
+}
+
+BoardNormalForm Board::to_num_form() {
     return make_pair(taken.to_ullong(), black.to_ullong());
+}
+
+BoardNormalForm Board::to_normal_form() {
+    Board curr = *this;
+    BoardNormalForm tmp, minimum = to_num_form();
+    for (size_t i = 0; i < 3; i++) {
+        curr = curr.rotate_90_ccw();
+        tmp = curr.to_num_form();
+        if (tmp < minimum) {
+            minimum = tmp;
+        }
+    }
+    curr = curr.flip_horizontal();
+    tmp = curr.to_num_form();
+    if (tmp < minimum) {
+        minimum = tmp;
+    }
+    for (size_t i = 0; i < 3; i++) {
+        curr = curr.rotate_90_ccw();
+        tmp = curr.to_num_form();
+        if (tmp < minimum) {
+            minimum = tmp;
+        }
+    }
+
+    return minimum;
+}
+
+void Board::display() {
+    std::cout << " 1 2 3 4 5 6 7 8" << std::endl;
+    for (int y = 0; y < 8; y++) {
+        std::cout << (y+1);
+        for (int x = 0; x < 8; x++) {
+            if (get(WHITE, x, y)) {
+                std::cout << "W ";
+            } else if (get(BLACK, x, y)) {
+                std::cout << "B ";
+            } else {
+                std::cout << "  ";
+            }
+        }
+        std::cout << std::endl;
+    }
 }

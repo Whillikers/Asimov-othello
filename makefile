@@ -24,13 +24,19 @@ ASIMOV_SRCS = search.cpp opening.cpp heuristic.cpp transposition.cpp\
 	$(addprefix search_alg/,$(SEARCH_SRCS)) \
 	$(addprefix heuristics/,$(HEURIS_SRCS))
 
+OPENING_SRCS = $(ASIMOV_SRCS) opening_gen/generator.cpp
+
 TESTGAME_SRCS = testgame.cpp
 TESTMINIMAX_SRCS = testgame.cpp
 
+TESTBOARD_SRCS = board.cpp testboard.cpp
+
 COMMON_OBJS = $(COMMON_SRCS:.cpp=.o)
 ASIMOV_OBJS = $(COMMON_OBJS) $(ASIMOV_SRCS:.cpp=.o)
+OPENING_OBJS = $(COMMON_OBJS) $(OPENING_SRCS:.cpp=.o)
 TESTGAME_OBJS = $(ASIMOV_OBJS) $(TESTGAME_SRCS:.cpp=.o)
 TESTMINIMAX_OBJS = $(ASIMOV_OBJS) $(TESTMINIMAX_SRCS:.cpp=.o)
+TESTBOARD_OBJS = $(TESTBOARD_SRCS:.cpp=.o)
 
 BINS = asimov
 
@@ -47,10 +53,21 @@ asimov: $(addprefix $(OBJDIR)/,$(ASIMOV_OBJS))
 	echo $(ASIMOV_OBJS)
 	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
 
+#Debug target to generate debug symbols
+opening-debug: DEBUGFLAGS = -ggdb
+opening-debug: asimov
+
+opening: $(addprefix $(OBJDIR)/,$(OPENING_SRCS))
+	echo $(ASIMOV_OBJS)
+	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
+
 testgame: $(addprefix $(OBJDIR)/,$(TESTGAME_OBJS))
 	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
 
 testminimax: $(addprefix $(OBJDIR)/,$(TESTMINIMAX_OBJS))
+	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
+
+testboard: $(addprefix $(OBJDIR)/,$(TESTBOARD_OBJS))
 	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/$(notdir %.cpp)
