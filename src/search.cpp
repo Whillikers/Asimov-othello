@@ -7,5 +7,4 @@ Search::Search(Heuristic * _h) {
 }
 
 Search::~Search() {
-    delete h;
 }

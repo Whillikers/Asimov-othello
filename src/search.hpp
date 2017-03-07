@@ -18,7 +18,7 @@ namespace asimov {
         Heuristic *h;
     public:
         Search(Heuristic * _h);
-        ~Search();
+        virtual ~Search();
 
         virtual Move search(Board *b, int max_time, int max_depth, Side turn) = 0;
     };

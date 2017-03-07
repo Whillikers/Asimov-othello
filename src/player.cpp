@@ -9,14 +9,20 @@
  */
 Player::Player(Side side) {
     this->side = side;
+    ply = 5;
+    h = new BasicHeuristic();
+    s = new SearchMinimax(h);
+    current = new Board();
 }
 Player::Player(Side side, bool testingMinimax) {
     this->side = side;
-    ply = 20;
+    ply = 5;
+    h = new BasicHeuristic();
+    s = new SearchMinimax(h);
     if (testingMinimax) {
-        h = new BasicHeuristic();
-        s = new SearchMinimax(h);
         ply = 2;
+    } else {
+        current = new Board();
     }
 }
 
@@ -24,6 +30,9 @@ Player::Player(Side side, bool testingMinimax) {
  * Destructor for the player.
  */
 Player::~Player() {
+    if (s == nullptr) {delete s;}
+    if (h == nullptr) {delete h;}
+    if (current == nullptr) {delete current;}
 }
 
 /**
@@ -41,9 +50,15 @@ Player::~Player() {
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
+    if (s == nullptr) {
+        return nullptr;
+    }
+
     Move *m = new Move(0,0);
 
-    current->doMove(((opponentsMove==nullptr)?Move(-1,-1):*opponentsMove), OTHER_SIDE(side));
+    if (opponentsMove != nullptr) {
+        current->doMove(*opponentsMove, OTHER_SIDE(side));
+    }
 
     *m = s->search(current, msLeft, ply, side);
 
@@ -51,5 +66,5 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         current->doMove(*m,side);
     }
 
-    return (m->isPass()?nullptr:m);
+    return ((m->isPass())? nullptr :m);
 }
