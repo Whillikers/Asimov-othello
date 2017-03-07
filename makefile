@@ -29,11 +29,14 @@ OPENING_SRCS = $(ASIMOV_SRCS) opening_gen/generator.cpp
 TESTGAME_SRCS = testgame.cpp
 TESTMINIMAX_SRCS = testgame.cpp
 
+TESTBOARD_SRCS = board.cpp testboard.cpp
+
 COMMON_OBJS = $(COMMON_SRCS:.cpp=.o)
 ASIMOV_OBJS = $(COMMON_OBJS) $(ASIMOV_SRCS:.cpp=.o)
 OPENING_OBJS = $(COMMON_OBJS) $(OPENING_SRCS:.cpp=.o)
 TESTGAME_OBJS = $(ASIMOV_OBJS) $(TESTGAME_SRCS:.cpp=.o)
 TESTMINIMAX_OBJS = $(ASIMOV_OBJS) $(TESTMINIMAX_SRCS:.cpp=.o)
+TESTBOARD_OBJS = $(TESTBOARD_SRCS:.cpp=.o)
 
 BINS = asimov
 
@@ -62,6 +65,9 @@ testgame: $(addprefix $(OBJDIR)/,$(TESTGAME_OBJS))
 	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
 
 testminimax: $(addprefix $(OBJDIR)/,$(TESTMINIMAX_OBJS))
+	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
+
+testboard: $(addprefix $(OBJDIR)/,$(TESTBOARD_OBJS))
 	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/$(notdir %.cpp)

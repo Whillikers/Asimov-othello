@@ -53,17 +53,8 @@ pair<Move, float> SearchMTDf::mtdf(Board *b, float guess, int d, Side turn) {
     sc = TURN_MAX(turn);
 
     vector<Move> mvs = b->getMoves(turn);
-    vector<Board*> next_b(mvs.size());
 
     table->clear();
-
-    //compute and allocated moves once
-    for (int i = 0; i < mvs.size(); i++) {
-        Board* nb = b->copy();
-        Move mv = mvs[i];
-        nb->doMove(&mv, turn);
-        next_b[i] = nb;
-    }
 
     while (low < high) {
         bst = -std::numeric_limits<float>::infinity();
@@ -73,9 +64,11 @@ pair<Move, float> SearchMTDf::mtdf(Board *b, float guess, int d, Side turn) {
             beta += 1.0;
         }
 
-        for (int i = 0; i < next_b.size(); i++) {
+        for (int i = 0; i < mvs.size(); i++) {
 
-            float v = sc * alpha_beta_search(next_b[i], beta-1.0, beta, d, OTHER_SIDE(turn));
+            MoveResult res = b->doMove(mvs[i], turn);
+            float v = sc * alpha_beta_search(b, beta-1.0, beta, d, OTHER_SIDE(turn));
+            b->undoMove(res, turn);
 
             if (v > bst) {
                 bst = v;
@@ -90,11 +83,6 @@ pair<Move, float> SearchMTDf::mtdf(Board *b, float guess, int d, Side turn) {
         } else {
             low = guess;
         }
-    }
-
-    //delete next moves.
-    for (int i = 0; i < next_b.size(); i++) {
-        delete next_b[i];
     }
 
     return make_pair(mvs[mbst], guess);
@@ -130,25 +118,22 @@ float SearchMTDf::alpha_beta_search(Board *bd, float a, float b, int d, Side tur
     if (turn == WHITE) {
         float alpha = a;
         for (int i = 0; i < mvs.size() && a < b; i++) {
-            Board* nb = bd->copy();
-            Move m = mvs[i];
-            nb->doMove(&(mvs[i]), turn);
+            MoveResult res = bd->doMove(mvs[i], turn);
 
-            g = max(g, this->alpha_beta_search(nb, alpha, b, d-1, OTHER_SIDE(turn)));
+            g = max(g, this->alpha_beta_search(bd, alpha, b, d-1, OTHER_SIDE(turn)));
             alpha = max(alpha, g);
 
-            delete nb;
+            bd->undoMove(res, turn);
         }
     } else {
         float beta = b;
         for (int i = 0; i < mvs.size() && a < b; i++) {
-            Board* nb = bd->copy();
-            nb->doMove(&(mvs[i]), turn);
+            MoveResult res = bd->doMove(mvs[i], turn);
 
-            g = min(g, this->alpha_beta_search(nb, a, beta, d-1, OTHER_SIDE(turn)));
+            g = min(g, this->alpha_beta_search(bd, a, beta, d-1, OTHER_SIDE(turn)));
             beta = min(beta, g);
 
-            delete nb;
+            bd->undoMove(res, turn);
         }
     }
 
