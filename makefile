@@ -11,7 +11,7 @@ CPPFLAGS = -std=c++11 -Wall -pedantic -I$(SRCDIR)
 LDFLAGS =
 DOCGENFLAGS =
 UNUSED_DEBUG_FLAGS = -ggdb
-DEBUGFLAGS =
+DEBUGFLAGS = -g
 
 
 #Source files for each search algorithm
