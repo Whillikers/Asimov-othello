@@ -14,7 +14,7 @@ namespace asimov {
     private:
     public:
         BasicHeuristic();
-        ~BasicHeuristic();
+        virtual ~BasicHeuristic();
 
         virtual float evaluate(Board *b);
     };

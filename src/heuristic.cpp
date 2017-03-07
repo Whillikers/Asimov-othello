@@ -3,10 +3,6 @@
 
 using namespace asimov;
 
-Heuristic::Heuristic() {
-
+Heuristic::~Heuristic() {
+    
 }
-//
-// float Hueristic::evaluate(Board *b, HeuristicType type) {
-//     return 0.0;
-// }

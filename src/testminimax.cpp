@@ -23,9 +23,9 @@ int main(int argc, char *argv[]) {
     board->setBoard(boardData);
 
     // Initialize player as the white player, and set testing_minimax flag.
-    Player *player = new Player(WHITE);
-    player->testingMinimax = true;
+    Player *player = new Player(WHITE, true);
 
+    player->current = board;
 
     /**
      * TODO: Write code to set your player's internal board state to the
