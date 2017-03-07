@@ -1,6 +1,6 @@
 #pragma once
 
-#include "heuristic.hpp"
+#include "../heuristic.hpp"
 
 namespace asimov {
 
