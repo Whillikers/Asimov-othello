@@ -1,5 +1,5 @@
-#include "search_alg/mtdf.hpp"
-#include "asimov_common.hpp"
+#include "mtdf.hpp"
+#include "../asimov_common.hpp"
 
 #include <vector>
 

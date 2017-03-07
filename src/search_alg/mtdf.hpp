@@ -1,6 +1,6 @@
 #pragma once
 
-#include "search.hpp"
+#include "../search.hpp"
 #include <utility>
 
 using namespace std;

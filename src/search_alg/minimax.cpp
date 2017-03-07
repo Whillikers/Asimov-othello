@@ -1,4 +1,4 @@
-#include "search_alg/minimax.hpp"
+#include "minimax.hpp"
 
 using namespace asimov;
 
