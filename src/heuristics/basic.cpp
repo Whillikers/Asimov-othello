@@ -1,4 +1,4 @@
-#include "heuristics/basic.hpp"
+#include "basic.hpp"
 
 using namespace asimov;
 
