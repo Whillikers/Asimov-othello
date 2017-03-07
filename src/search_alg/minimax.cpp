@@ -59,7 +59,7 @@ Move SearchMinimax::search(Board *b, int max_time, int max_depth, Side turn) {
  * @returns The best minimax score of of the given board on the given turn.
  */
 float SearchMinimax::minimax(Board *b, int d, Side turn) {
-    if (d == 0) {
+    if (d == 0 || b->isDone()) {
         return h->evaluate(b);
     }
 
