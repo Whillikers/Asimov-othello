@@ -9,7 +9,7 @@
  */
 Player::Player(Side side) {
     this->side = side;
-    ply = 5;
+    ply = 6;
     h = new BasicHeuristic();
     s = new SearchMinimax(h);
     current = new Board();

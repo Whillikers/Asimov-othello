@@ -17,6 +17,9 @@ Move SearchMinimax::search(Board *b, int max_time, int max_depth, Side turn) {
     float g;
 
     vector<Move> mvs = b->getMoves(turn);
+    if (mvs.size() == 0) {
+        return Move::pass();
+    }
 
     if (turn == WHITE) {
         g = -std::numeric_limits<float>::infinity();
@@ -66,6 +69,9 @@ float SearchMinimax::minimax(Board *b, int d, Side turn) {
     float g;
 
     vector<Move> mvs = b->getMoves(turn);
+    if (mvs.size() == 0) {
+        return minimax(b, d-1, OTHER_SIDE(turn));
+    }
 
     if (turn == WHITE) {
         g = -std::numeric_limits<float>::infinity();

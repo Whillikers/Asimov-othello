@@ -11,8 +11,12 @@ enum Side {
 class Move {
 
 public:
+
     int x, y;
-    bool pass;
+
+    static Move pass() {
+        return Move(-1,-1);
+    }
     Move(int x, int y) {
         this->x = x;
         this->y = y;
