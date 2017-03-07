@@ -12,44 +12,41 @@ using namespace asimov;
  *
  * @returns The best move found in the search time
  */
-virtual Move search(Board *b, int max_time, int max_depth, Side turn) {
-    int b;
+Move SearchMinimax::search(Board *b, int max_time, int max_depth, Side turn) {
+    int bst;
     float g;
 
-    vector<Move> mvs = bd->getMoves(turn);
+    vector<Move> mvs = b->getMoves(turn);
 
     if (turn == WHITE) {
         g = -std::numeric_limits<float>::infinity();
         for (int i = 0; i < mvs.size(); i++) {
-            Board* nb = bd->copy();
-            Move m = mvs[i];
-            nb->doMove(&(mvs[i]), turn);
+            MoveResult res = b->doMove(mvs[i], turn);
 
-            float v = minimax(nb, max_depth-1, OTHER_SIDE(turn));
+            float v = minimax(b, max_depth-1, OTHER_SIDE(turn));
             if (v > g) {
                 g = v;
-                b = i;
+                bst = i;
             }
 
-            delete nb;
+            b->undoMove(res, turn);
         }
     } else {
         g = std::numeric_limits<float>::infinity();
         for (int i = 0; i < mvs.size(); i++) {
-            Board* nb = bd->copy();
-            nb->doMove(&(mvs[i]), turn);
+            MoveResult res = b->doMove(mvs[i], turn);
 
-            float v = minimax(nb, max_depth-1, OTHER_SIDE(turn));
+            float v = minimax(b, max_depth-1, OTHER_SIDE(turn));
             if (v < g) {
                 g = v;
-                b = i;
+                bst = i;
             }
 
-            delete nb;
+            b->undoMove(res, turn);
         }
     }
 
-    return mvs[b];
+    return mvs[bst];
 }
 
 /**
@@ -61,35 +58,32 @@ virtual Move search(Board *b, int max_time, int max_depth, Side turn) {
  *
  * @returns The best minimax score of of the given board on the given turn.
  */
-float minimax(Board *b, int d, Side turn) {
+float SearchMinimax::minimax(Board *b, int d, Side turn) {
     if (d == 0) {
-        return h->evaluate(bd);
+        return h->evaluate(b);
     }
 
     float g;
 
-    vector<Move> mvs = bd->getMoves(turn);
+    vector<Move> mvs = b->getMoves(turn);
 
     if (turn == WHITE) {
         g = -std::numeric_limits<float>::infinity();
         for (int i = 0; i < mvs.size(); i++) {
-            Board* nb = bd->copy();
-            Move m = mvs[i];
-            nb->doMove(&(mvs[i]), turn);
+            MoveResult res = b->doMove(mvs[i], turn);
 
-            g = max(g, this->alpha_beta_search(nb, d-1, OTHER_SIDE(turn)));
+            g = max(g, minimax(b, d-1, OTHER_SIDE(turn)));
 
-            delete nb;
+            b->undoMove(res, turn);
         }
     } else {
         g = std::numeric_limits<float>::infinity();
         for (int i = 0; i < mvs.size(); i++) {
-            Board* nb = bd->copy();
-            nb->doMove(&(mvs[i]), turn);
+            MoveResult res = b->doMove(mvs[i], turn);
 
-            g = min(g, this->alpha_beta_search(nb, d-1, OTHER_SIDE(turn)));
+            g = min(g, minimax(b, d-1, OTHER_SIDE(turn)));
 
-            delete nb;
+            b->undoMove(res, turn);
         }
     }
 
