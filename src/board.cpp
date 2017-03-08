@@ -203,6 +203,9 @@ vector<Move> Board::getMoves(Side side) {
             }
         }
     }
+    for (int i = 0; i < moves.size(); i++) {
+        moves[i].getX();
+    }
     return moves;
 }
 
