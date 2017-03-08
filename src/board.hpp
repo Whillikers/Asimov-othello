@@ -35,7 +35,6 @@ private:
     bitset<64> taken;
 
     bool occupied(int x, int y);
-    bool get(Side side, int x, int y);
     void set(Side side, int x, int y);
     void flip(int x, int y);
     void clear(int x, int y);
@@ -46,11 +45,14 @@ private:
     BoardNormalForm to_num_form();
 
 public:
+    friend class Heuristic;
+
     Board();
     static Board empty();
     ~Board();
     //deprecate this to avoid allocations
     Board *copy();
+    bool get(Side side, int x, int y);
 
     bool isDone();
     bool hasMoves(Side side);

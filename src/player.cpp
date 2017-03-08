@@ -1,5 +1,6 @@
 #include "player.hpp"
 #include "heuristics/basic.hpp"
+#include "heuristics/better1.hpp"
 #include "search_alg/minimax.hpp"
 
 /**
@@ -9,8 +10,8 @@
  */
 Player::Player(Side side) {
     this->side = side;
-    ply = 6;
-    h = new BasicHeuristic();
+    ply = 5;
+    h = new Better1Heuristic();
     s = new SearchMinimax(h);
     current = new Board();
 }

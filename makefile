@@ -17,7 +17,7 @@ DEBUGFLAGS = -g
 #Source files for each search algorithm
 SEARCH_SRCS = mtdf.cpp minimax.cpp
 #Source files for each heuristic method
-HEURIS_SRCS = basic.cpp lin_fit.cpp
+HEURIS_SRCS = basic.cpp lin_fit.cpp better1.cpp
 
 COMMON_SRCS = board.cpp player.cpp search.cpp opening.cpp heuristic.cpp \
 	transposition.cpp \
