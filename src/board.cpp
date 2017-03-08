@@ -312,6 +312,41 @@ BoardNormalForm Board::to_normal_form() {
     return minimum;
 }
 
+BoardAnnotatedNormalForm Board::to_annotated_normal_form() {
+    Board curr = *this;
+    BoardNormalForm tmp, minimum = to_num_form();
+    BoardAnnotatedNormalForm annotated;
+    int transformations = 0;
+
+    for (size_t i = 0; i < 3; i++) {
+        curr = curr.rotate_90_ccw();
+        tmp = curr.to_num_form();
+        if (tmp < minimum) {
+            minimum = tmp;
+            transformations = i + 1;
+        }
+    }
+    curr = curr.flip_horizontal();
+    tmp = curr.to_num_form();
+    if (tmp < minimum) {
+        minimum = tmp;
+        transformations = 4;
+    }
+    for (size_t i = 0; i < 3; i++) {
+        curr = curr.rotate_90_ccw();
+        tmp = curr.to_num_form();
+        if (tmp < minimum) {
+            minimum = tmp;
+            transformations = 5 + i;
+        }
+    }
+
+    annotated.normalForm = minimum;
+    annotated.transformationIndex = transformations;
+
+    return annotated;
+}
+
 void Board::display() {
     std::cout << " 1 2 3 4 5 6 7 8" << std::endl;
     for (int y = 0; y < 8; y++) {

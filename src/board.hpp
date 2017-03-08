@@ -10,6 +10,12 @@ using namespace std;
 
 typedef pair<unsigned long long, unsigned long long> BoardNormalForm;
 
+struct BoardAnnotatedNormalForm {
+    BoardNormalForm normalForm;
+    int transformationIndex; // Specifies the transformations to obtain this
+    //TODO: Develop way to transform moves based on transformation index
+};
+
 struct MoveResult {
     int x, y, flipped[9];
 
@@ -69,6 +75,7 @@ public:
     void setBoard(char data[]);
 
     BoardNormalForm to_normal_form();
+    BoardAnnotatedNormalForm to_annotated_normal_form();
 };
 
 #endif
