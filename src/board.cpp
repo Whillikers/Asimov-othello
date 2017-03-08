@@ -203,6 +203,7 @@ vector<Move> Board::getMoves(Side side) {
             }
         }
     }
+    // TODO: Find the root cause of the bug this terrible hack fixes
     for (int i = 0; i < moves.size(); i++) {
         moves[i].getX();
     }
