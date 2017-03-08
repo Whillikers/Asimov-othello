@@ -12,8 +12,21 @@ typedef pair<unsigned long long, unsigned long long> BoardNormalForm;
 
 struct BoardAnnotatedNormalForm {
     BoardNormalForm normalForm;
-    int transformationIndex; // Specifies the transformations to obtain this
-    //TODO: Develop way to transform moves based on transformation index
+    int transformationIndex = 0; // Specifies the transformations to get this
+
+    Move undoTransformation(Move m) { // Applies the transformations backwards
+        switch (transformationIndex) {
+            case 0: return m;
+            case 1: return Move(m.getY(), 7 - m.getX());
+            case 2: return Move(7 - m.getX(), 7 - m.getY());
+            case 3: return Move(7 - m.getY(), m.getX());
+            case 4: return Move(m.getY(), m.getX());
+            case 5: return Move(m.getX(), 7 - m.getY());
+            case 6: return Move(7 - m.getY(), 7 - m.getX());
+            case 7: return Move(7 - m.getX(), m.getY());
+            default: return Move(-1, -1);
+        }
+    }
 };
 
 class Board {
