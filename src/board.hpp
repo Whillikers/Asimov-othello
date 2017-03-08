@@ -25,8 +25,6 @@ struct BoardAnnotatedNormalForm {
             case 6: return Move(m.getY(), m.getX());
             case 7: return Move(7 - m.getX(), m.getY());
             default: return Move(-1, -1);
-        }
-    }
 };
 
 class Board {
