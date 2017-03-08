@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "opening.hpp"
 
 using namespace asimov;
