@@ -5,6 +5,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
+    srand(time(nullptr));
     // Read in side the player is on.
     if (argc != 2)  {
         cerr << "usage: " << argv[0] << " side" << endl;
