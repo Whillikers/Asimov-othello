@@ -1,6 +1,7 @@
 #include "player.hpp"
 #include "heuristics/basic.hpp"
 #include "heuristics/better1.hpp"
+#include "search_alg/mtdf.hpp"
 #include "search_alg/minimax.hpp"
 
 /**
@@ -12,7 +13,7 @@ Player::Player(Side side) {
     this->side = side;
     ply = 5;
     h = new Better1Heuristic();
-    s = new SearchMinimax(h);
+    s = new SearchMTDf(h);
     current = new Board();
 }
 Player::Player(Side side, bool testingMinimax) {
