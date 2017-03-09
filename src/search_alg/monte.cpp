@@ -1,5 +1,6 @@
 #include "monte.hpp"
 #include <cmath>
+#include <ctime>
 
 using namespace asimov;
 
@@ -13,11 +14,16 @@ Move SearchMonteCarlo::search(Board *b, int max_time, int max_depth, Side turn) 
         wins[i] = 0;
     }
 
-    int iter = 10000;
+    //int iter = 50000;
 
-    cerr << "Searching..." << endl;
+    cerr << "Searching..." << ((float)max_time)/1000.0 << endl;
 
-    for (size_t n = 0; n < iter; n++) {
+    time_t start = time(nullptr);
+    int moves_left = 64 - b->countWhite() - b->countBlack();
+
+    size_t n = 1;
+
+    for (; difftime(time(nullptr), start) < 0.1*(float)max_time/1000.0; n++) {
         float c = sqrt(2 * log(n));
         //choose highest
         int maxi = 0;
@@ -37,7 +43,7 @@ Move SearchMonteCarlo::search(Board *b, int max_time, int max_depth, Side turn) 
         ns[maxi] += 1;
     }
 
-    float c = sqrt(2 * log(iter));
+    float c = sqrt(2 * log(n));
 
     int maxi = 0;
     float maxucb = wins[0]/ns[0] + c/sqrt(ns[0]);
