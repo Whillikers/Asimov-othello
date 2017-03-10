@@ -3,6 +3,7 @@
 #include "heuristics/better1.hpp"
 #include "search_alg/mtdf.hpp"
 #include "search_alg/minimax.hpp"
+#include "opening_books/logistello.hpp"
 
 /**
  * Constructor for the player; initialize everything here. The side your AI is
@@ -14,8 +15,10 @@ Player::Player(Side side) {
     ply = 5;
     h = new Better1Heuristic();
     s = new SearchMTDf(h);
+    book = new BookLogistello();
     current = new Board();
 }
+
 Player::Player(Side side, bool testingMinimax) {
     this->side = side;
     ply = 5;
@@ -51,18 +54,24 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-
     if (s == nullptr) {
         return nullptr;
     }
 
-    Move *m = new Move(0,0);
+    Move *m = new Move(-1, -1);
 
     if (opponentsMove != nullptr) {
         current->doMove(*opponentsMove, OTHER_SIDE(side));
     }
 
-    *m = s->search(current, msLeft, ply, side);
+    if (book != nullptr && book->inBook) {
+        *m = book->nextMove(current);
+    }
+
+    if (m->isPass()) {
+        *m = s->search(current, msLeft, ply, side);
+    }
+    
 
     if (current->checkMove(*m, side)) {
         current->doMove(*m,side);
