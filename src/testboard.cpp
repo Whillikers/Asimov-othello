@@ -1,16 +1,16 @@
 #include <iostream>
-#include "board.hpp"
+#include "bitboard.hpp"
 
 using namespace std;
 
 int main(int argc, char* argv) {
 
-    Board b;
+    asimov::BitBoard b;
     vector<MoveResult> moves;
 
-    Side turn = WHITE;
+    Side turn = BLACK;
 
-    b.display();
+    b.display(turn);
 
     while (true) {
         char c;
@@ -23,19 +23,19 @@ int main(int argc, char* argv) {
             cout << "x,y:" << endl << "> ";
             cin >> x >> y;
             m = Move(x-1, y-1);
-            if (b.checkMove(m, turn)) {
-                moves.push_back(b.doMove(m, turn));
+            if (b.check_move(m, turn)) {
+                moves.push_back(b.do_move(m, turn));
                 turn = OTHER_SIDE(turn);
+                b.display(turn);
             }
-            b.display();
             break;
         case 'u': case 'U':
             if (moves.size() > 0) {
                 turn = OTHER_SIDE(turn);
-                b.undoMove(moves.back(), turn);
+                b.undo_move(moves.back(), turn);
                 moves.pop_back();
+                b.display(turn);
             }
-            b.display();
             break;
         case 'q': case 'Q':
             return 0;

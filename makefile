@@ -20,7 +20,7 @@ SEARCH_SRCS = mtdf.cpp minimax.cpp monte.cpp
 HEURIS_SRCS = basic.cpp lin_fit.cpp better1.cpp
 
 COMMON_SRCS = board.cpp player.cpp search.cpp opening.cpp heuristic.cpp \
-	transposition.cpp \
+	transposition.cpp bitboard.cpp\
 	$(addprefix search_alg/,$(SEARCH_SRCS)) \
 	$(addprefix heuristics/,$(HEURIS_SRCS))
 #Source files for the full AI player
@@ -31,7 +31,7 @@ OPENING_SRCS = $(ASIMOV_SRCS) opening_gen/generator.cpp
 TESTGAME_SRCS = testgame.cpp
 TESTMINIMAX_SRCS = testminimax.cpp
 
-TESTBOARD_SRCS = board.cpp testboard.cpp
+TESTBOARD_SRCS = bitboard.cpp testboard.cpp
 
 COMMON_OBJS = $(COMMON_SRCS:.cpp=.o)
 ASIMOV_OBJS = $(COMMON_OBJS) $(ASIMOV_SRCS:.cpp=.o)

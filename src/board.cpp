@@ -129,17 +129,16 @@ MoveResult Board::doMove(Move m, Side side) {
 
     int X = mr.x = m.getX();
     int Y = mr.y = m.getY();
-
     // Ignore if move is invalid.
     if (!checkMove(m, side)) return mr;
 
 
     Side other = (side == BLACK) ? WHITE : BLACK;
-    for (int dx = -1; dx <= 1; dx++) {
-        for (int dy = -1; dy <= 1; dy++) {
-            if (dy == 0 && dx == 0) continue;
+    for (int dx = -2; dx <= 0; dx++) {
+        for (int dy = -2; dy <= 0; dy++) {
+            if (dy == -1 && dx == -1) continue;
 
-            int c = 0;
+            int c = -1;
 
             int x = X;
             int y = Y;
