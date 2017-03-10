@@ -4,7 +4,7 @@
 #include "search_alg/mtdf.hpp"
 #include "search_alg/minimax.hpp"
 #include "search_alg/monte.hpp"
-
+#include "opening_books/logistello.hpp"
 /**
  * Constructor for the player; initialize everything here. The side your AI is
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
@@ -15,7 +15,10 @@ Player::Player(Side side) {
     ply = 5;
     h = new Better1Heuristic();
     s = new SearchMonteCarlo(h);
+    current = new Board();
+    book = new BookLogistello();
 }
+
 Player::Player(Side side, bool testingMinimax) {
     this->side = side;
     ply = 5;
@@ -49,18 +52,30 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-
     if (s == nullptr) {
         return nullptr;
     }
 
+<<<<<<< HEAD
     Move *m = new Move();
+||||||| merged common ancestors
+    Move *m = new Move(0,0);
+=======
+    Move *m = new Move(-1, -1);
+>>>>>>> Finished implementing shortened Logistello opening book
 
     if (opponentsMove != nullptr) {
         current.do_move(*opponentsMove, OTHER_SIDE(side));
     }
 
-    *m = s->search(current, msLeft, ply, side);
+    if (book != nullptr && book->inBook) {
+        *m = book->nextMove(current);
+    }
+
+    if (m->isPass()) {
+        *m = s->search(current, msLeft, ply, side);
+    }
+    
 
     if (current.check_move(*m, side)) {
         current.do_move(*m,side);
