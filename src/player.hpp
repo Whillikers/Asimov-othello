@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "common.hpp"
-#include "board.hpp"
+#include "bitboard.hpp"
 #include "heuristic.hpp"
 #include "search.hpp"
 
@@ -18,7 +18,7 @@ private:
     Side side;
     int ply;
 public:
-    Board *current;
+    BitBoard current;
     Player(Side side);
     Player(Side side, bool testingMinimax);
     ~Player();

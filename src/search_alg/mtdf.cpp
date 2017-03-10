@@ -18,7 +18,7 @@ SearchMTDf::~SearchMTDf() {
 /**
  * @brief Implementation of iterative deepening MTDf algorithm.
  */
-Move SearchMTDf::search(Board *b, int max_time, int max_depth, Side turn) {
+Move SearchMTDf::search(BitBoard &b, int max_time, int max_depth, Side turn) {
     int d = 1;
     float sc, guess;
     time_t start, current;
@@ -33,7 +33,7 @@ Move SearchMTDf::search(Board *b, int max_time, int max_depth, Side turn) {
     do {
         cerr << d << endl;
 
-        pair<Move, float> r = this->mtdf(b, guess, d, turn);
+        pair<Move, float> r = mtdf(b, guess, d, turn);
 
         guess = r.second;
         mbst = r.first;
@@ -48,7 +48,7 @@ Move SearchMTDf::search(Board *b, int max_time, int max_depth, Side turn) {
 /**
  * @brief Implementation of fixed depth MTDf algorithm.
  */
-pair<Move, float> SearchMTDf::mtdf(Board *b, float guess, int d, Side turn) {
+pair<Move, float> SearchMTDf::mtdf(BitBoard &b, float guess, int d, Side turn) {
     int mbst;
     float bst, low, high, beta, sc;
 
@@ -56,7 +56,7 @@ pair<Move, float> SearchMTDf::mtdf(Board *b, float guess, int d, Side turn) {
     low = bst = -(high = std::numeric_limits<float>::infinity());
     sc = TURN_MAX(turn);
 
-    vector<Move> mvs = b->getMoves(turn);
+    vector<Move> mvs = b.get_moves(turn);
 
     table->clear();
 
@@ -70,9 +70,9 @@ pair<Move, float> SearchMTDf::mtdf(Board *b, float guess, int d, Side turn) {
 
         for (int i = 0; i < mvs.size(); i++) {
 
-            MoveResult res = b->doMove(mvs[i], turn);
+            MoveResult res = b.do_move(mvs[i], turn);
             float v = sc * alpha_beta_search(b, beta-0.05, beta, d, OTHER_SIDE(turn));
-            b->undoMove(res, turn);
+            b.undo_move(res, turn);
 
             if (v > bst) {
                 bst = v;
@@ -96,7 +96,7 @@ pair<Move, float> SearchMTDf::mtdf(Board *b, float guess, int d, Side turn) {
  * @brief Alpha beta minimax search "with memory" (a.k.a with a transposition
  * table).
  */
-float SearchMTDf::alpha_beta_search(Board *bd, float a, float b, int d, Side turn) {
+float SearchMTDf::alpha_beta_search(BitBoard &bd, float a, float b, int d, Side turn) {
 
     //cerr << a << ":" << b << endl;
     //retrieve from transposition table
@@ -113,14 +113,14 @@ float SearchMTDf::alpha_beta_search(Board *bd, float a, float b, int d, Side tur
     }
     //cerr << a << ":" << b << endl;
 
-    if (d == 0 || bd->isDone()) {
+    if (d == 0 || bd.is_done()) {
         return this->h->evaluate(bd);
     }
 
     float sc, g;
 
     sc = TURN_MAX(turn);
-    vector<Move> mvs = bd->getMoves(turn);
+    vector<Move> mvs = bd.get_moves(turn);
 
     if (mvs.size() == 0) {
         return alpha_beta_search(bd, a, b, d-1, OTHER_SIDE(turn));
@@ -130,27 +130,27 @@ float SearchMTDf::alpha_beta_search(Board *bd, float a, float b, int d, Side tur
         g = -std::numeric_limits<float>::infinity();
         float alpha = a;
         for (int i = 0; i < mvs.size() && g < b; i++) {
-            MoveResult res = bd->doMove(mvs[i], turn);
+            MoveResult res = bd.do_move(mvs[i], turn);
 
             float v = alpha_beta_search(bd, alpha, b, d-1, OTHER_SIDE(turn));
 
             g = max(g, v);
             alpha = max(alpha, g);
 
-            bd->undoMove(res, turn);
+            bd.undo_move(res, turn);
         }
     } else {
         g = std::numeric_limits<float>::infinity();
         float beta = b;
         for (int i = 0; i < mvs.size() && a < g; i++) {
-            MoveResult res = bd->doMove(mvs[i], turn);
+            MoveResult res = bd.do_move(mvs[i], turn);
 
             float v = alpha_beta_search(bd, a, beta, d-1, OTHER_SIDE(turn));
 
             g = min(g, v);
             beta = min(beta, g);
 
-            bd->undoMove(res, turn);
+            bd.undo_move(res, turn);
         }
     }
     //cerr << "C\n";

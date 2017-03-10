@@ -37,6 +37,9 @@ int main(int argc, char* argv) {
                 b.display(turn);
             }
             break;
+        case 'd': case 'D':
+            b.display(turn);
+            break;
         case 'q': case 'Q':
             return 0;
         }

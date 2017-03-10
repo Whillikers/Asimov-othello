@@ -15,7 +15,6 @@ Player::Player(Side side) {
     ply = 5;
     h = new Better1Heuristic();
     s = new SearchMonteCarlo(h);
-    current = new Board();
 }
 Player::Player(Side side, bool testingMinimax) {
     this->side = side;
@@ -25,7 +24,6 @@ Player::Player(Side side, bool testingMinimax) {
     if (testingMinimax) {
         ply = 2;
     } else {
-        current = new Board();
     }
 }
 
@@ -35,7 +33,6 @@ Player::Player(Side side, bool testingMinimax) {
 Player::~Player() {
     if (s == nullptr) {delete s;}
     if (h == nullptr) {delete h;}
-    if (current == nullptr) {delete current;}
 }
 
 /**
@@ -57,16 +54,16 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         return nullptr;
     }
 
-    Move *m = new Move(0,0);
+    Move *m = new Move();
 
     if (opponentsMove != nullptr) {
-        current->doMove(*opponentsMove, OTHER_SIDE(side));
+        current.do_move(*opponentsMove, OTHER_SIDE(side));
     }
 
     *m = s->search(current, msLeft, ply, side);
 
-    if (current->checkMove(*m, side)) {
-        current->doMove(*m,side);
+    if (current.check_move(*m, side)) {
+        current.do_move(*m,side);
     }
 
     return ((m->isPass())? nullptr :m);

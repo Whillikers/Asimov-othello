@@ -1,4 +1,6 @@
 #include "minimax.hpp"
+#include <iostream>
+using namespace std;
 
 using namespace asimov;
 
@@ -12,19 +14,19 @@ using namespace asimov;
  *
  * @returns The best move found in the search time
  */
-Move SearchMinimax::search(Board *b, int max_time, int max_depth, Side turn) {
+Move SearchMinimax::search(BitBoard &b, int max_time, int max_depth, Side turn) {
     int bst;
     float g;
 
-    vector<Move> mvs = b->getMoves(turn);
+    vector<Move> mvs = b.get_moves(turn);
     if (mvs.size() == 0) {
-        return Move::pass();
+        return Move();
     }
 
     if (turn == WHITE) {
         g = -std::numeric_limits<float>::infinity();
         for (int i = 0; i < mvs.size(); i++) {
-            MoveResult res = b->doMove(mvs[i], turn);
+            MoveResult res = b.do_move(mvs[i], turn);
 
             float v = minimax(b, max_depth-1, OTHER_SIDE(turn));
             if (v > g) {
@@ -32,12 +34,12 @@ Move SearchMinimax::search(Board *b, int max_time, int max_depth, Side turn) {
                 bst = i;
             }
 
-            b->undoMove(res, turn);
+            b.undo_move(res, turn);
         }
     } else {
         g = std::numeric_limits<float>::infinity();
         for (int i = 0; i < mvs.size(); i++) {
-            MoveResult res = b->doMove(mvs[i], turn);
+            MoveResult res = b.do_move(mvs[i], turn);
 
             float v = minimax(b, max_depth-1, OTHER_SIDE(turn));
             if (v < g) {
@@ -45,7 +47,7 @@ Move SearchMinimax::search(Board *b, int max_time, int max_depth, Side turn) {
                 bst = i;
             }
 
-            b->undoMove(res, turn);
+            b.undo_move(res, turn);
         }
     }
 
@@ -61,14 +63,14 @@ Move SearchMinimax::search(Board *b, int max_time, int max_depth, Side turn) {
  *
  * @returns The best minimax score of of the given board on the given turn.
  */
-float SearchMinimax::minimax(Board *b, int d, Side turn) {
-    if (d == 0 || b->isDone()) {
+float SearchMinimax::minimax(BitBoard &b, int d, Side turn) {
+    if (d == 0 || b.is_done()) {
         return h->evaluate(b);
     }
 
     float g;
 
-    vector<Move> mvs = b->getMoves(turn);
+    vector<Move> mvs = b.get_moves(turn);
     if (mvs.size() == 0) {
         return minimax(b, d-1, OTHER_SIDE(turn));
     }
@@ -76,20 +78,20 @@ float SearchMinimax::minimax(Board *b, int d, Side turn) {
     if (turn == WHITE) {
         g = -std::numeric_limits<float>::infinity();
         for (int i = 0; i < mvs.size(); i++) {
-            MoveResult res = b->doMove(mvs[i], turn);
+            MoveResult res = b.do_move(mvs[i], turn);
 
             g = max(g, minimax(b, d-1, OTHER_SIDE(turn)));
 
-            b->undoMove(res, turn);
+            b.undo_move(res, turn);
         }
     } else {
         g = std::numeric_limits<float>::infinity();
         for (int i = 0; i < mvs.size(); i++) {
-            MoveResult res = b->doMove(mvs[i], turn);
+            MoveResult res = b.do_move(mvs[i], turn);
 
             g = min(g, minimax(b, d-1, OTHER_SIDE(turn)));
 
-            b->undoMove(res, turn);
+            b.undo_move(res, turn);
         }
     }
 

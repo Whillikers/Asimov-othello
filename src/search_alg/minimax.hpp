@@ -10,8 +10,8 @@ namespace asimov {
             this->h = h;
         }
 
-        virtual Move search(Board *b, int max_time, int max_depth, Side turn);
+        virtual Move search(BitBoard &b, int max_time, int max_depth, Side turn);
 
-        float minimax(Board *b, int d, Side turn);
+        float minimax(BitBoard &b, int d, Side turn);
     };
 }

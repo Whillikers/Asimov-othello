@@ -1,6 +1,6 @@
 #pragma once
 
-#include "board.hpp"
+#include "bitboard.hpp"
 #include <queue>
 #include <map>
 #include <utility>
@@ -41,8 +41,8 @@ namespace asimov {
     public:
         TranspositionTable(int max);
 
-        void store(Board *b, TableValue value);
-        bool fetch(Board * b, TableValue * value);
+        void store(BitBoard &b, TableValue value);
+        bool fetch(BitBoard &b, TableValue * value);
         void clear();
     };
 }

@@ -2,7 +2,7 @@
 
 #include"heuristic.hpp"
 #include"transposition.hpp"
-#include"board.hpp"
+#include"bitboard.hpp"
 #include <utility>
 
 //When iterative deepening is about to quit on timeout, but a sudden drop in
@@ -20,6 +20,6 @@ namespace asimov {
         Search(Heuristic * _h);
         virtual ~Search();
 
-        virtual Move search(Board *b, int max_time, int max_depth, Side turn) = 0;
+        virtual Move search(BitBoard &b, int max_time, int max_depth, Side turn) = 0;
     };
 }

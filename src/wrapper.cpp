@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+#include <unistd.h>
 #include "player.hpp"
 using namespace std;
 
@@ -12,6 +13,8 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
     Side side = (!strcmp(argv[1], "Black")) ? BLACK : WHITE;
+
+    // usleep (20*1000000);
 
     // Initialize player.
     Player *player = new Player(side);

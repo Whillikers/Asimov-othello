@@ -18,12 +18,13 @@ namespace asimov {
     protected:
         bool onBoard(int x, int y);
         bool occupied(int x, int y);
-        bool get(Side s, int x, int y);
         void set(Side s, int x, int y);
         void flip(int x, int y);
         void unset(int x, int y);
         u64  find_moves(u64 gen, u64 pro);
     public:
+        bool get(Side s, int x, int y);
+
         BitBoard();
 
         bool is_done();
@@ -34,8 +35,9 @@ namespace asimov {
         void undo_move(MoveResult m, Side s);
         vector<Move> get_moves(Side s);
         int count(Side s);
-        int countBlack();
-        int countWhite();
+        int count_black();
+        int count_white();
+        BoardNormalForm to_normal_form();
 
         void display(Side s);
     };

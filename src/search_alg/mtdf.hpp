@@ -2,6 +2,7 @@
 
 #include "../search.hpp"
 #include <utility>
+#include <iostream>
 
 using namespace std;
 
@@ -19,11 +20,11 @@ namespace asimov {
         SearchMTDf(Heuristic *_h);
         ~SearchMTDf();
 
-        virtual Move search(Board *b, int max_time, int max_depth, Side turn);
+        virtual Move search(BitBoard &b, int max_time, int max_depth, Side turn);
 
-        float alpha_beta_search(Board *bd, float a, float b, int d, Side turn);
+        float alpha_beta_search(BitBoard &bd, float a, float b, int d, Side turn);
 
-        pair<Move, float> mtdf(Board *b, float guess, int d, Side turn);
-        Move mtdf_id(Board *b, int max_time, int max_depth, Side side);
+        pair<Move, float> mtdf(BitBoard &b, float guess, int d, Side turn);
+        Move mtdf_id(BitBoard &b, int max_time, int max_depth, Side side);
     };
 }

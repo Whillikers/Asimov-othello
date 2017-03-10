@@ -16,8 +16,9 @@ public:
 
     int x, y;
 
-    static Move pass() {
-        return Move(-1,-1);
+    Move() {
+        x = -1;
+        y = -1;
     }
     Move(int x, int y) {
         this->x = x;

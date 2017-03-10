@@ -18,8 +18,8 @@ TranspositionTable::TranspositionTable(int max) {
  *
  * @returns whether or not an entry was found for the board.
  */
-void TranspositionTable::store(Board * b, TableValue v) {
-    TranspositionKey t = b->to_normal_form();
+void TranspositionTable::store(BitBoard &b, TableValue v) {
+    TranspositionKey t = b.to_normal_form();
     if (entries.find(t) == entries.end()) {
         entries[t] = v;
         current--;
@@ -40,8 +40,8 @@ void TranspositionTable::store(Board * b, TableValue v) {
  *
  * @returns whether or not an entry was found for the board.
  */
-bool TranspositionTable::fetch(Board * b, TableValue * value) {
-    TranspositionKey t = b->to_normal_form();
+bool TranspositionTable::fetch(BitBoard &b, TableValue * value) {
+    TranspositionKey t = b.to_normal_form();
     if (entries.find(t) == entries.end()) {
         return false;
     } else if (value != nullptr){

@@ -16,6 +16,6 @@ namespace asimov {
         BasicHeuristic();
         virtual ~BasicHeuristic();
 
-        virtual float evaluate(Board *b);
+        virtual float evaluate(BitBoard &b);
     };
 }

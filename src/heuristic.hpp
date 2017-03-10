@@ -1,6 +1,6 @@
 #pragma once
 
-#include "board.hpp"
+#include "bitboard.hpp"
 
 namespace asimov {
 
@@ -12,6 +12,6 @@ namespace asimov {
 
     public:
         virtual ~Heuristic();
-        virtual float evaluate(Board *b) = 0;
+        virtual float evaluate(BitBoard &b) = 0;
     };
 }

@@ -148,35 +148,35 @@ u64 BitBoard::find_moves(u64 gen, u64 pro) {
 
     tmp = soutOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp >> 8) & (~tmp) & empty;
+    moves |= (tmp >> 8) & empty;
 
     tmp = nortOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp << 8) & (~tmp) & empty;
+    moves |= (tmp << 8) & empty;
 
     tmp = eastOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp << 1) & (~tmp) & empty;
+    moves |= (tmp << 1) & empty;
 
     tmp = westOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp >> 1) & (~tmp) & empty;
+    moves |= (tmp >> 1) & empty;
 
     tmp = soEaOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp >> 7) & (~tmp) & empty;
+    moves |= (tmp >> 7) & empty;
 
     tmp = soWeOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp >> 9) & (~tmp) & empty;
+    moves |= (tmp >> 9) & empty;
 
     tmp = noEaOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp << 9) & (~tmp) & empty;
+    moves |= (tmp << 9) & empty;
 
     tmp = noWeOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp << 7) & (~tmp) & empty;
+    moves |= (tmp << 7) & empty;
 
     return moves;
 }
@@ -200,6 +200,8 @@ BitBoard::BitBoard() {
 }
 
 bool BitBoard::is_done() {
+    find_moves(BLACK);
+    find_moves(WHITE);
     return bmoves.bitmask == 0 && wmoves.bitmask == 0;
 }
 
@@ -227,8 +229,8 @@ bool BitBoard::has_moves(Side s) {
 bool BitBoard::check_move(Move m, Side s) {
     //return true;
     bool msk = (s==BLACK);
-    char x = m.getX();
-    char y = m.getY();
+    int x = m.getX();
+    int y = m.getY();
     return (
         ((bmoves.rows[y] & (1<<x)) > 0 && msk) ||
         ((wmoves.rows[y] & (1<<x)) > 0 && !msk)
@@ -278,7 +280,8 @@ MoveResult BitBoard::do_move(Move m, Side s) {
         }
     }
     set(s, X, Y);
-    find_moves(other);
+    find_moves(BLACK);
+    find_moves(WHITE);
     return mr;
 }
 
@@ -301,28 +304,59 @@ void BitBoard::undo_move(MoveResult mr, Side s) {
     }
 
     unset(mr.x, mr.y);
+
+    find_moves(BLACK);
+    find_moves(WHITE);
 }
 
 
 vector<Move> BitBoard::get_moves(Side s) {
+    find_moves(BLACK);
+    find_moves(WHITE);
     vector<Move> mvs;
+
+    for (size_t x = 0; x < 8; x++) {
+        for (size_t y = 0; y < 8; y++) {
+            Move m(x,y);
+            if (check_move(m, s)) {
+                mvs.push_back(m);
+            }
+        }
+    }
 
     return mvs;
 }
 
 
 int BitBoard::count(Side s) {
-    return 0;
+    return (s==BLACK)?count_black():count_white();
 }
 
 
-int BitBoard::countBlack() {
-    return 0;
+int BitBoard::count_black() {
+    u64 cntr = black.bitmask;
+    int count = 0;
+    for (size_t i = 0; i < 64; i++) {
+        count += cntr & 1;
+        cntr >>= 1;
+    }
+    return count;
 }
 
 
-int BitBoard::countWhite() {
-    return 0;
+int BitBoard::count_white() {
+    u64 cntr = white.bitmask;
+    int count = 0;
+    for (size_t i = 0; i < 64; i++) {
+        count += cntr & 1;
+        cntr >>= 1;
+    }
+    return count;
+}
+
+BoardNormalForm BitBoard::to_normal_form() {
+    //TODO: do rotations.
+    return make_pair(black.bitmask, white.bitmask);
 }
 
 void BitBoard::display(Side s) {
