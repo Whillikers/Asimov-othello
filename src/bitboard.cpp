@@ -181,6 +181,43 @@ u64 BitBoard::find_moves(u64 gen, u64 pro) {
     return moves;
 }
 
+u64 flip_vertical(u64 x) {
+   const u64 k1 = 0x00FF00FF00FF00FF;
+   const u64 k2 = 0x0000FFFF0000FFFF;
+   x = ((x >>  8) & k1) | ((x & k1) <<  8);
+   x = ((x >> 16) & k2) | ((x & k2) << 16);
+   x = ( x >> 32)       | ( x       << 32);
+   return x;
+}
+
+u64 flip_horizontal (u64 x) {
+   const u64 k1 = 0x5555555555555555;
+   const u64 k2 = 0x3333333333333333;
+   const u64 k4 = 0x0f0f0f0f0f0f0f0f;
+   x = ((x >> 1) & k1) | ((x & k1) << 1);
+   x = ((x >> 2) & k2) | ((x & k2) << 2);
+   x = ((x >> 4) & k4) | ((x & k4) << 4);
+   return x;
+}
+
+u64 flip_diag(u64 x) {
+   u64 t;
+   const u64 k1 = 0x5500550055005500;
+   const u64 k2 = 0x3333000033330000;
+   const u64 k4 = 0x0f0f0f0f00000000;
+   t  = k4 & (x ^ (x << 28));
+   x ^=       t ^ (t >> 28) ;
+   t  = k2 & (x ^ (x << 14));
+   x ^=       t ^ (t >> 14) ;
+   t  = k1 & (x ^ (x <<  7));
+   x ^=       t ^ (t >>  7) ;
+   return x;
+}
+
+u64 rotate_90_ccw(u64 x) {
+    return flip_diag(flip_vertical(x));
+}
+
 /*=============================================================================
  *=============================================================================
  * Board operations
@@ -353,8 +390,21 @@ int BitBoard::count_white() {
 }
 
 BoardNormalForm BitBoard::to_normal_form() {
-    //TODO: do rotations.
-    return make_pair(black.bitmask, white.bitmask);
+    u64 b = black.bitmask, w = white.bitmask;
+    BoardNormalForm mn = make_pair(b,w);
+    for (size_t i = 0; i < 3; i++) {
+        b = rotate_90_ccw(b);
+        w = rotate_90_ccw(w);
+        mn = min(mn, make_pair(b,w));
+    }
+    b = flip_horizontal(b);
+    mn = min(mn, make_pair(b,w));
+    for (size_t i = 0; i < 3; i++) {
+        b = rotate_90_ccw(b);
+        w = rotate_90_ccw(w);
+        mn = min(mn, make_pair(b,w));
+    }
+    return mn;
 }
 
 void BitBoard::display(Side s) {
