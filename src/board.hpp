@@ -8,25 +8,6 @@
 #include "common.hpp"
 using namespace std;
 
-typedef pair<unsigned long long, unsigned long long> BoardNormalForm;
-
-struct MoveResult {
-    int x, y, flipped[9];
-
-    MoveResult() {
-        for (int i = 0; i < 9; i++) {
-            flipped[i] = 0;
-        }
-    }
-
-    void set(int dx, int dy, int c) {
-        flipped[3*dy + 4 + dx] = c;
-    }
-
-    int get(int dx, int dy) {
-        return flipped[3*dy + 4 + dx];
-    }
-};
 
 class Board {
 
