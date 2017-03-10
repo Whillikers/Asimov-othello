@@ -6,10 +6,6 @@
 #include "search_alg/monte.hpp"
 #include "opening_books/logistello.hpp"
 
-=======
-#include "opening_books/logistello.hpp"
-
->>>>>>> Finished implementing shortened Logistello opening book
 /**
  * Constructor for the player; initialize everything here. The side your AI is
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
