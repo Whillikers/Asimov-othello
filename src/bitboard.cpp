@@ -156,27 +156,27 @@ u64 BitBoard::find_moves(u64 gen, u64 pro) {
 
     tmp = eastOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp << 1) & empty;
+    moves |= (tmp << 1) & notAFile & empty;
 
     tmp = westOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp >> 1) & empty;
+    moves |= (tmp >> 1) & notHFile & empty;
 
     tmp = soEaOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp >> 7) & empty;
+    moves |= (tmp >> 7) & notAFile & empty;
 
     tmp = soWeOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp >> 9) & empty;
+    moves |= (tmp >> 9) & notHFile & empty;
 
     tmp = noEaOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp << 9) & empty;
+    moves |= (tmp << 9) & notAFile & empty;
 
     tmp = noWeOccl(gen, pro);
     tmp &= pro;
-    moves |= (tmp << 7) & empty;
+    moves |= (tmp << 7) & notHFile & empty;
 
     return moves;
 }
@@ -311,8 +311,6 @@ void BitBoard::undo_move(MoveResult mr, Side s) {
 
 
 vector<Move> BitBoard::get_moves(Side s) {
-    find_moves(BLACK);
-    find_moves(WHITE);
     vector<Move> mvs;
 
     for (size_t x = 0; x < 8; x++) {
