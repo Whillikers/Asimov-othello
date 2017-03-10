@@ -5,6 +5,7 @@
 #include "common.hpp"
 #include "board.hpp"
 #include "heuristic.hpp"
+#include "opening.hpp"
 #include "search.hpp"
 
 using namespace std;
@@ -15,6 +16,7 @@ class Player {
 private:
     Heuristic *h;
     Search *s;
+    OpeningBook *book;
     Side side;
     int ply;
 public:
