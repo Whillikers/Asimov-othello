@@ -2,6 +2,12 @@
 
 #include "../opening.hpp"
 #include <unordered_map>
+#include <fstream>
+
+// #define FILEPATH "src/opening_books/logistello-book.gam"
+//TODO: Get a better opening book
+#define FILEPATH "src/opening_books/logistello-book-shortened-clipped.gam"
+#define CHARSHIFT 48 // The difference between 1 as a character and a number
 
 /**
  * Generates a hash from a pair of numbers (in this case, a BoardNormalForm)
@@ -35,6 +41,7 @@ namespace asimov {
     class BookLogistello : public OpeningBook {
         private:
             std::unordered_map<BoardNormalForm, Move, boardhash> table;
+            Move stringToMove(string s);
         public:
             BookLogistello();
             ~BookLogistello();

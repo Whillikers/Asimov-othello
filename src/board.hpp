@@ -20,9 +20,9 @@ struct BoardAnnotatedNormalForm {
             case 1: return Move(m.getY(), 7 - m.getX());
             case 2: return Move(7 - m.getX(), 7 - m.getY());
             case 3: return Move(7 - m.getY(), m.getX());
-            case 4: return Move(m.getY(), m.getX());
+            case 4: return Move(7 - m.getY(), 7 - m.getX());
             case 5: return Move(m.getX(), 7 - m.getY());
-            case 6: return Move(7 - m.getY(), 7 - m.getX());
+            case 6: return Move(m.getY(), m.getX());
             case 7: return Move(7 - m.getX(), m.getY());
             default: return Move(-1, -1);
         }
