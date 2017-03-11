@@ -29,6 +29,7 @@ Player::Player(Side side, bool testingMinimax) {
     ply = 5;
     h = new BasicHeuristic();
     s = new SearchMinimax(h);
+    book = nullptr;
     if (testingMinimax) {
         ply = 2;
     } else {
@@ -68,7 +69,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     }
 
     if (book != nullptr && book->inBook) {
-        *m = book->nextMove(current);
+        // *m = book->nextMove(current);
     }
 
     if (m->isPass()) {
