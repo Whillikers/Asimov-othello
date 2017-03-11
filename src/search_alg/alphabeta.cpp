@@ -88,10 +88,12 @@ ABResult SearchAlphaBeta::alpha_beta_search(BitBoard &bd, float a, float b, int 
     int best = 0;
 
     sc = TURN_MAX(turn);
-    vector<Move> mvs = bd.get_moves(turn);
 
+    vector<Move> mvs = bd.get_moves(turn);
     if (mvs.size() == 0) {
-        return alpha_beta_search(bd, a, b, d-1, OTHER_SIDE(turn));
+        //return a pass if we have no moves
+        ABResult r = alpha_beta_search(bd, a, b, d-1, OTHER_SIDE(turn));
+        return ABResult(Move(), r);
     }
 
     if (turn == WHITE) {
