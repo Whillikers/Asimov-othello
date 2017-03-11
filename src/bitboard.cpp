@@ -249,6 +249,34 @@ MoveResult BitBoard::do_move(Move m, Side s) {
     // Ignore if move is invalid.
     if (!check_move(m, s)) return mr;
 
+    // data o;
+    // o.bitmask = 0;
+    // o.rows[Y] |= (1<<X);
+    // u64 org, gen, pro, tmp, msk = 0;
+    // org = o.bitmask;
+    // if (s == BLACK) {
+    //     gen = black.bitmask;
+    //     pro = white.bitmask;
+    // } else {
+    //     gen = white.bitmask;
+    //     pro = black.bitmask;
+    // }
+    // msk |= (nortOccl(gen, pro) & soutOccl(org, pro));
+    // msk |= (soutOccl(gen, pro) & nortOccl(org, pro));
+    // msk |= (eastOccl(gen, pro) & westOccl(org, pro));
+    // msk |= (westOccl(gen, pro) & eastOccl(org, pro));
+    // msk |= (noEaOccl(gen, pro) & soWeOccl(org, pro));
+    // msk |= (soWeOccl(gen, pro) & noEaOccl(org, pro));
+    // msk |= (noWeOccl(gen, pro) & soEaOccl(org, pro));
+    // msk |= (soEaOccl(gen, pro) & noWeOccl(org, pro));
+    //
+    // black.bitmask ^= msk;
+    // white.bitmask ^= msk;
+    //
+    // bitset<64> x(black.bitmask), y(white.bitmask), mask(msk);
+    // cerr << x << endl << y << endl << mask << endl;
+
+
 
     Side other = OTHER_SIDE(s);
     for (int dx = -1; dx <= 1; dx++) {
@@ -280,6 +308,11 @@ MoveResult BitBoard::do_move(Move m, Side s) {
         }
     }
     set(s, X, Y);
+
+    // mr.msk = msk;
+    mr.bm = bmoves.bitmask;
+    mr.wm = wmoves.bitmask;
+
     find_moves(BLACK);
     find_moves(WHITE);
     return mr;
@@ -302,11 +335,14 @@ void BitBoard::undo_move(MoveResult mr, Side s) {
             }
         }
     }
+    //
+    // black.bitmask ^= mr.msk;
+    // white.bitmask ^= mr.msk;
 
     unset(mr.x, mr.y);
 
-    find_moves(BLACK);
-    find_moves(WHITE);
+    bmoves.bitmask = mr.bm;
+    wmoves.bitmask = mr.wm;
 }
 
 

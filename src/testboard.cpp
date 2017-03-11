@@ -18,10 +18,12 @@ int main(int argc, char* argv) {
         Move m(-1,-1);
         cout << "m, u, q:" << endl << "> ";
         cin >> c;
+        cout << endl;
         switch (c) {
         case 'm': case 'M':
             cout << "x,y:" << endl << "> ";
             cin >> x >> y;
+            cout << endl;
             m = Move(x-1, y-1);
             if (b.check_move(m, turn)) {
                 moves.push_back(b.do_move(m, turn));

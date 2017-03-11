@@ -39,6 +39,8 @@ public:
 
 struct MoveResult {
     int x, y, flipped[9];
+    unsigned long long bm, wm;
+    unsigned long long msk;
 
     MoveResult() {
         for (int i = 0; i < 9; i++) {
