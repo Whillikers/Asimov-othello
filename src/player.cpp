@@ -4,6 +4,7 @@
 #include "search_alg/mtdf.hpp"
 #include "search_alg/minimax.hpp"
 #include "search_alg/monte.hpp"
+#include "search_alg/alphabeta.hpp"
 
 /**
  * Constructor for the player; initialize everything here. The side your AI is
@@ -12,9 +13,9 @@
  */
 Player::Player(Side side) {
     this->side = side;
-    ply = 5;
+    ply = 20;
     h = new Better1Heuristic();
-    s = new SearchMonteCarlo(h);
+    s = new SearchAlphaBeta(h);
 }
 Player::Player(Side side, bool testingMinimax) {
     this->side = side;

@@ -5,7 +5,7 @@
 
 #include <vector>
 
-#define SET_MAX(a, b, q, r)     {if (q < a) {a = q; b = r;}}
+#define SET_MAX(a, b, q, r)     {if (q > a) {a = q; b = r;}}
 #define SET_MIN(a, b, q, r)     {if (q < a) {a = q; b = r;}}
 
 using namespace std;
@@ -24,30 +24,33 @@ SearchAlphaBeta::~SearchAlphaBeta() {
  * @brief Implementation of iterative deepening alpha-beta tree search algorithm.
  */
 Move SearchAlphaBeta::search(BitBoard &b, int max_time, int max_depth, Side turn) {
-    int d = 1;
+    int d = 3;
     float sc, guess;
-    time_t start, current;
+    time_t start;
     Move mbst(0,0);
 
     sc = TURN_MAX(turn);
     guess = 0.0;
 
-    cerr << "Depth:" << endl;
+    cerr << endl << "[" << ((float)max_time)/1000.0 << "] Searching..." << endl;
 
-    current = time(&start);
+    time(&start);
     do {
-        cerr << d << endl;
+        table->clear();
 
         float inf = std::numeric_limits<float>::infinity();
 
-        pair<Move, float> r = alpha_beta_search(b, -inf, inf, d, turn);
+        ABResult r = alpha_beta_search(b, -inf, inf, d, turn);
 
-        guess = r.second;
-        mbst = r.first;
+        mbst = r.m;
 
-        time(&current);
         d++;
-    } while (difftime(current, start) < max_time && d < max_depth);
+    } while (
+        difftime(time(nullptr), start) < 0.02*((float)max_time)/1000.0 &&
+        d < max_depth
+    );
+
+    cerr << "Searched to depth " << d << endl << endl;
 
     return mbst;
 }
@@ -65,19 +68,24 @@ ABResult SearchAlphaBeta::alpha_beta_search(BitBoard &bd, float a, float b, int 
     entry.upperbound = std::numeric_limits<float>::infinity();
     if (table != nullptr) {
         if (table->fetch(bd, &entry)) {
-            if (entry.lowerbound >= b) {return entry.lowerbound;}
-            if (entry.upperbound <= a) {return entry.upperbound;}
+            if (entry.lowerbound >= b) {return ABResult(Move(), entry.lowerbound);}
+            if (entry.upperbound <= a) {return ABResult(Move(), entry.upperbound);}
             a = max(a, entry.lowerbound);
             b = min(b, entry.upperbound);
         }
     }
     //cerr << a << ":" << b << endl;
 
-    if (d == 0 || bd.is_done()) {
-        return this->h->evaluate(bd);
+    if (bd.is_done()) {
+        return ABResult(Move(), 100.0*(bd.count_white()-bd.count_black()));
+    }
+
+    if (d == 0) {
+        return ABResult(Move(), h->evaluate(bd));
     }
 
     float sc, g;
+    int best = 0;
 
     sc = TURN_MAX(turn);
     vector<Move> mvs = bd.get_moves(turn);
@@ -92,9 +100,9 @@ ABResult SearchAlphaBeta::alpha_beta_search(BitBoard &bd, float a, float b, int 
         for (int i = 0; i < mvs.size() && g < b; i++) {
             MoveResult res = bd.do_move(mvs[i], turn);
 
-            float v = alpha_beta_search(bd, alpha, b, d-1, OTHER_SIDE(turn));
+            ABResult v = alpha_beta_search(bd, alpha, b, d-1, OTHER_SIDE(turn));
 
-            g = max(g, v);
+            SET_MAX(g, best, v.score, i);
             alpha = max(alpha, g);
 
             bd.undo_move(res, turn);
@@ -105,9 +113,9 @@ ABResult SearchAlphaBeta::alpha_beta_search(BitBoard &bd, float a, float b, int 
         for (int i = 0; i < mvs.size() && a < g; i++) {
             MoveResult res = bd.do_move(mvs[i], turn);
 
-            float v = alpha_beta_search(bd, a, beta, d-1, OTHER_SIDE(turn));
+            ABResult v = alpha_beta_search(bd, a, beta, d-1, OTHER_SIDE(turn));
 
-            g = min(g, v);
+            SET_MIN(g, best, v.score, i);
             beta = min(beta, g);
 
             bd.undo_move(res, turn);
@@ -127,5 +135,5 @@ ABResult SearchAlphaBeta::alpha_beta_search(BitBoard &bd, float a, float b, int 
         table->store(bd, entry);
     }
 
-    return g;
+    return ABResult(mvs[best], g);
 }

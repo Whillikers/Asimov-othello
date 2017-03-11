@@ -15,7 +15,7 @@ DEBUGFLAGS = -g
 
 
 #Source files for each search algorithm
-SEARCH_SRCS = mtdf.cpp minimax.cpp monte.cpp
+SEARCH_SRCS = mtdf.cpp minimax.cpp monte.cpp alphabeta.cpp
 #Source files for each heuristic method
 HEURIS_SRCS = basic.cpp lin_fit.cpp better1.cpp
 

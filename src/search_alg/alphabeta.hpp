@@ -16,7 +16,7 @@ namespace asimov {
             m = _m;
             score = s;
         }
-    }
+    };
 
     /**
      * @brief Search class implementing the MTDf tree search algorithm.

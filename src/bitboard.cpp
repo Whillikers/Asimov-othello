@@ -389,6 +389,10 @@ int BitBoard::count_white() {
     return count;
 }
 
+int BitBoard::count_moves(Side s) {
+    u64 cntr = (s == BLACK)?bmoves.bitmask:wmoves.bitmask;
+}
+
 BoardNormalForm BitBoard::to_normal_form() {
     u64 b = black.bitmask, w = white.bitmask;
     BoardNormalForm mn = make_pair(b,w);

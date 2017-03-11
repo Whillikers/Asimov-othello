@@ -20,7 +20,7 @@ float Better1Heuristic::evaluate(BitBoard &b) {
     float edge = 6.0;
     float edge_access = 1.25;
     float other = 2.0;
-    float mobility = 15.0;
+    float mobility = 5.0;
 
     for (size_t x = 0; x < 8; x++) {
         for (size_t y = 0; y < 8; y++) {
@@ -46,7 +46,7 @@ float Better1Heuristic::evaluate(BitBoard &b) {
         }
     }
 
-    //TODO: consider mobility
+    score += (b.count_moves(WHITE) - b.count_moves(BLACK)) * mobility;
 
     return score;
 }

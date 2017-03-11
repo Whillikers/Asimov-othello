@@ -37,6 +37,9 @@ namespace asimov {
         int count(Side s);
         int count_black();
         int count_white();
+
+        int count_moves(Side s);
+
         BoardNormalForm to_normal_form();
 
         void display(Side s);
