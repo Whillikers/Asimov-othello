@@ -93,7 +93,7 @@ ABResult SearchAlphaBeta::alpha_beta_search(BitBoard &bd, float a, float b, int 
     if (mvs.size() == 0) {
         //return a pass if we have no moves
         ABResult r = alpha_beta_search(bd, a, b, d-1, OTHER_SIDE(turn));
-        return ABResult(Move(), r);
+        return ABResult(Move(), r.score);
     }
 
     if (turn == WHITE) {
