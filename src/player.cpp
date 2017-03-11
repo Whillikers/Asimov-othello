@@ -65,7 +65,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     }
 
     if (book != nullptr && book->inBook) {
-        // *m = book->nextMove(current);
+        *m = book->nextMove(current);
     }
 
     if (m->isPass()) {
