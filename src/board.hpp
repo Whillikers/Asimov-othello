@@ -27,17 +27,6 @@ struct BoardAnnotatedNormalForm {
             default: return Move(-1, -1);
 };
 
-struct MoveResult {
-    int x, y, flipped[9];
-
-    MoveResult() {
-        for (int i = 0; i < 9; i++) {
-            flipped[i] = 0;
->>>>>>> Implemented move transformations on annotated normal boards
-        }
-    }
-};
-
 class Board {
 
 private:
