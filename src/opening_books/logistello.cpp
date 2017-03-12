@@ -7,7 +7,7 @@ BookLogistello::BookLogistello() {
     Side toMove = BLACK;
     std::ifstream file(FILEPATH);
     std::string line;
-    Move mv = Move::pass();
+    Move mv = Move(-1, -1);
 
     // Each line is an opening, each set of three characters is a move
     while (std::getline(file, line)) {
@@ -40,7 +40,7 @@ Move BookLogistello::nextMove(Board* b) {
     // See if we're still in the book
     if (table.find(bNorm) == table.end()) {
         inBook = false;
-        return Move::pass();
+        return Move(-1, -1);
     }
 
     Move moveNormal = table.at(bNorm); // Currently, best move on a normalized board

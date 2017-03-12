@@ -17,7 +17,6 @@ Player::Player(Side side) {
     h = new Better1Heuristic();
     s = new SearchMonteCarlo(h);
     book = new BookLogistello();
-    current = new Board();
 }
 
 Player::Player(Side side, bool testingMinimax) {
