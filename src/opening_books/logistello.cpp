@@ -18,6 +18,8 @@ BookLogistello::BookLogistello() {
             table.insert(std::make_pair(b->to_normal_form(), mv));
             b->doMove(mv, toMove);
 
+            BoardNormalForm bn = b->to_normal_form();
+
             toMove = (toMove == BLACK) ? WHITE : BLACK;
             line = line.substr(3, line.length());
         }
