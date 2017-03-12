@@ -64,9 +64,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         current.do_move(*opponentsMove, OTHER_SIDE(side));
     }
 
-    if (book != nullptr && book->inBook) {
-        *m = book->nextMove(current);
-    }
+    // TODO: Uncomment when the board normal form issue is fixed
+    // if (book != nullptr && book->inBook) {
+        // *m = book->nextMove(current);
+    // }
 
     if (m->isPass()) {
         *m = s->search(current, msLeft, ply, side);
