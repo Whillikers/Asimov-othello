@@ -32,6 +32,7 @@ Move SearchMonteCarlo::search(BitBoard &b, int max_time, int max_depth, Side tur
 
     time_t start = time(nullptr);
     int moves_left = 64 - b.count_white() - b.count_black();
+    if (max_time < 0) max_time = INFINITE_TIME;
 
     size_t n = 1;
 
@@ -39,9 +40,9 @@ Move SearchMonteCarlo::search(BitBoard &b, int max_time, int max_depth, Side tur
         float c = sqrt(2 * log(n));
         //choose highest
         int maxi = 0;
-        float maxucb = c/sqrt(ns[0]);
+        float maxucb = (ns[0] == 0) ? std::numeric_limits<float>::infinity() : c/sqrt(ns[0]);
         for (size_t i = 1; i < mvs.size(); i++) {
-            float ucb = c/sqrt(ns[i]);
+            float ucb = (ns[i] == 0) ? std::numeric_limits<float>::infinity() : c/sqrt(ns[i]);
             if (ucb > maxucb) {
                 maxucb = ucb;
                 maxi = i;

@@ -2,6 +2,8 @@
 
 #include "../search.hpp"
 
+#define INFINITE_TIME 20000 // Backup timeLeft in case we have infinite time
+
 namespace asimov {
     class SearchMonteCarlo : public Search {
     private:

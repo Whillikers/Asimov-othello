@@ -1,4 +1,4 @@
-#include "heuristics/better1.hpp"
+#include "better1.hpp"
 
 using namespace asimov;
 
