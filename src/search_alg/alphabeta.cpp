@@ -4,6 +4,11 @@
 #include "../asimov_common.hpp"
 
 #include <vector>
+#include <algorithm>
+
+#define SEARCH_DEPTH    (7)
+#define MONTE_ITERS     (3)
+#define INF             (std::numeric_limits<float>::infinity())
 
 #define SET_MAX(a, b, q, r)     {if (q > a) {a = q; b = r;}}
 #define SET_MIN(a, b, q, r)     {if (q < a) {a = q; b = r;}}
@@ -20,122 +25,231 @@ SearchAlphaBeta::~SearchAlphaBeta() {
     delete table;
 }
 
+
+int simulate(BitBoard &b, Side turn) {
+    int n, i = 0;
+    Move mvs[MAX_MOVES];
+
+    BitBoard bt = b;
+
+    while (!bt.is_done()) {
+
+        bt.get_moves(turn, mvs, &n);
+        if (n != 0) {
+            int ri = abs(rand())%n;
+
+            bt.do_move(mvs[ri], turn);
+        }
+        turn = OTHER_SIDE(turn);
+        i++;
+    }
+    int cw = bt.count_white();
+    int cb = bt.count_black();
+    return cw-cb;
+}
+
+
+float alpha_beta_simple(BitBoard &bd, float a, float b, int d, Side turn) {
+    int n = 0;
+    Move mvs[MAX_MOVES];
+
+    if (bd.is_done()) {
+        return bd.count_white()-bd.count_black();
+    }
+
+    if (d == 0) {
+        float total = 0;
+        for (int i = 0; i < MONTE_ITERS; i++) {
+            total += simulate(bd, turn);
+        }
+        return total/((float)MONTE_ITERS);
+    }
+
+    float g;
+    int best = 0;
+
+    bd.get_moves(turn, mvs, &n);
+    if (n == 0) {
+        //pass if there are no moves
+        return alpha_beta_simple(bd, a, b, d-1, OTHER_SIDE(turn));
+    }
+
+    if (turn == WHITE) {
+        g = -INF;
+        float alpha = a;
+        for (int i = 0; i < n && g < b; i++) {
+
+            BitBoard bt = bd;
+            bt.do_move(mvs[i], turn);
+
+            float v = alpha_beta_simple(bt, alpha, b, d-1, OTHER_SIDE(turn));
+
+            g = max(g, v);
+            alpha = max(alpha, g);
+        }
+    } else {
+        g = INF;
+        float beta = b;
+        for (int i = 0; i < n && a < g; i++) {
+
+            BitBoard bt = bd;
+            bt.do_move(mvs[i], turn);
+
+            float v = alpha_beta_simple(bt, a, beta, d-1, OTHER_SIDE(turn));
+
+            g = min(g, v);
+            beta = min(beta, g);
+        }
+    }
+
+    return g;
+}
+
+bool pair_less(pair<float, int> a, pair<float, int> b) {
+    return a.first < b.first;
+}
+bool pair_more(pair<float, int> a, pair<float, int> b) {
+    return a.first > b.first;
+}
+
+
+float alpha_beta_search(BitBoard &bd, float a, float b, int d, Side turn) {
+    int n = 0;
+    Move rmvs[MAX_MOVES];
+    pair<float, int> mvs[MAX_MOVES];
+
+    if (bd.is_done()) {
+        return (bd.count_white()-bd.count_black());
+    }
+
+    if (d == 0) {
+        float total = 0;
+        for (int i = 0; i < MONTE_ITERS; i++) {
+            total += simulate(bd, turn);
+        }
+        return total/((float)MONTE_ITERS);
+    }
+
+    float g;
+
+    bd.get_moves(turn, rmvs, &n);
+    if (n == 0) {
+        //pass if there are no moves
+        return alpha_beta_search(bd, a, b, d-1, OTHER_SIDE(turn));
+    }
+
+    //seed moves and sort them
+    int test_depth = max(0, min(1, d-3));
+    for (int i = 0; i < n; i++) {
+        BitBoard bt = bd;
+        bt.do_move(rmvs[i], turn);
+        //run alpha beta on some depth to get an estimate
+         float r = alpha_beta_simple(
+            bt, a, b, test_depth, OTHER_SIDE(turn)
+        );
+
+        mvs[i] = make_pair(r, i);
+    }
+
+
+    if (turn == WHITE) {
+        g = -INF;
+        //sort the moves by their estimated score
+        sort(mvs, mvs+(n+1), pair_more);
+        float alpha = a;
+        for (int i = 0; i < n && alpha < b; i++) {
+            BitBoard btmp = bd;
+            btmp.do_move(rmvs[mvs[i].second], turn);
+
+            float v = alpha_beta_search(btmp, alpha, b, d-1, OTHER_SIDE(turn));
+
+            g = max(g, v);
+            alpha = max(alpha, g);
+        }
+    } else {
+        g = INF;
+        //sort the moves by their estimated score
+        sort(mvs, mvs+(n+1), pair_less);
+        float beta = b;
+        for (int i = 0; i < n && a < beta; i++) {
+            BitBoard btmp = bd;
+            btmp.do_move(rmvs[mvs[i].second], turn);
+
+            float v = alpha_beta_search(btmp, a, beta, d-1, OTHER_SIDE(turn));
+
+            g = min(g, v);
+            beta = min(beta, g);
+        }
+    }
+
+    return g;
+}
+
+
 /**
  * @brief Implementation of iterative deepening alpha-beta tree search algorithm.
  */
 Move SearchAlphaBeta::search(BitBoard &b, int max_time, int max_depth, Side turn) {
-    int d = 3;
-    float sc, guess;
-    time_t start;
-    Move mbst(0,0);
+    const float inf = std::numeric_limits<float>::infinity();
+    // int d = 3;
+    // float sc, guess;
+    // time_t start;
+    // Move mbst(0,0);
+    //
+    // sc = TURN_MAX(turn);
+    // guess = 0.0;
+    //
+    // cerr << endl << "[" << ((float)max_time)/1000.0 << "] Searching..." << endl;
+    //
+    // time(&start);
+    // do {
+    //     table->clear();
+    //
+    //
+    //
+    //     ABResult r = alpha_beta_search(b, -inf, inf, d, turn);
+    //
+    //     mbst = r.m;
+    //
+    //     d++;
+    // } while (
+    //     difftime(time(nullptr), start) < 0.02*((float)max_time)/1000.0 &&
+    //     d < max_depth
+    // );
+    //
+    // cerr << "Searched to depth " << d << endl << endl;
+    //
+    // return mbst;
+    int best, n = 0;
+    float g;
+    Move mvs[MAX_MOVES];
 
-    sc = TURN_MAX(turn);
-    guess = 0.0;
-
-    cerr << endl << "[" << ((float)max_time)/1000.0 << "] Searching..." << endl;
-
-    time(&start);
-    do {
-        table->clear();
-
-        float inf = std::numeric_limits<float>::infinity();
-
-        ABResult r = alpha_beta_search(b, -inf, inf, d, turn);
-
-        mbst = r.m;
-
-        d++;
-    } while (
-        difftime(time(nullptr), start) < 0.02*((float)max_time)/1000.0 &&
-        d < max_depth
-    );
-
-    cerr << "Searched to depth " << d << endl << endl;
-
-    return mbst;
-}
-
-/**
- * @brief Alpha beta minimax search "with memory" (a.k.a with a transposition
- * table).
- */
-ABResult SearchAlphaBeta::alpha_beta_search(BitBoard &bd, float a, float b, int d, Side turn) {
-
-    //cerr << a << ":" << b << endl;
-    //retrieve from transposition table
-    TableValue entry;
-    entry.lowerbound = -std::numeric_limits<float>::infinity();
-    entry.upperbound = std::numeric_limits<float>::infinity();
-    if (table != nullptr) {
-        if (table->fetch(bd, &entry)) {
-            if (entry.lowerbound >= b) {return ABResult(Move(), entry.lowerbound);}
-            if (entry.upperbound <= a) {return ABResult(Move(), entry.upperbound);}
-            a = max(a, entry.lowerbound);
-            b = min(b, entry.upperbound);
-        }
-    }
-    //cerr << a << ":" << b << endl;
-
-    if (bd.is_done()) {
-        return ABResult(Move(), 100.0*(bd.count_white()-bd.count_black()));
-    }
-
-    if (d == 0) {
-        return ABResult(Move(), h->evaluate(bd));
-    }
-
-    float sc, g;
-    int best = 0;
-
-    sc = TURN_MAX(turn);
-
-    vector<Move> mvs = bd.get_moves(turn);
-    if (mvs.size() == 0) {
-        //return a pass if we have no moves
-        ABResult r = alpha_beta_search(bd, a, b, d-1, OTHER_SIDE(turn));
-        return ABResult(Move(), r.score);
+    b.get_moves(turn, mvs, &n);
+    if (n == 0) {
+        //return pass if there are no moves
+        return Move();
     }
 
     if (turn == WHITE) {
-        g = -std::numeric_limits<float>::infinity();
-        float alpha = a;
-        for (int i = 0; i < mvs.size() && g < b; i++) {
-            MoveResult res = bd.do_move(mvs[i], turn);
+        g = -INF;
+        for (int i = 0; i < n; i++) {
+            BitBoard btmp = b;
+            btmp.do_move(mvs[i], turn);
 
-            ABResult v = alpha_beta_search(bd, alpha, b, d-1, OTHER_SIDE(turn));
+            float v = alpha_beta_search(btmp, -INF, INF, SEARCH_DEPTH, OTHER_SIDE(turn));
 
-            SET_MAX(g, best, v.score, i);
-            alpha = max(alpha, g);
-
-            bd.undo_move(res, turn);
+            SET_MAX(g, best, v, i);
         }
     } else {
-        g = std::numeric_limits<float>::infinity();
-        float beta = b;
-        for (int i = 0; i < mvs.size() && a < g; i++) {
-            MoveResult res = bd.do_move(mvs[i], turn);
+        g = INF;
+        for (int i = 0; i < n; i++) {
+            BitBoard btmp = b;
+            btmp.do_move(mvs[i], turn);
 
-            ABResult v = alpha_beta_search(bd, a, beta, d-1, OTHER_SIDE(turn));
+            float v = alpha_beta_search(btmp, -INF, INF, SEARCH_DEPTH, OTHER_SIDE(turn));
 
-            SET_MIN(g, best, v.score, i);
-            beta = min(beta, g);
-
-            bd.undo_move(res, turn);
+            SET_MIN(g, best, v, i);
         }
     }
-    //cerr << "C\n";
-
-    //update bounds
-    if (g <= a) {entry.upperbound = g;}
-    if (g >= b) {entry.lowerbound = g;}
-    if (g > a && g < b) {
-        entry.upperbound = g;
-        entry.lowerbound = g;
-    }
-
-    if (table != nullptr) {
-        table->store(bd, entry);
-    }
-
-    return ABResult(mvs[best], g);
+    return mvs[best];
 }

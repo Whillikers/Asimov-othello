@@ -33,7 +33,7 @@ namespace asimov {
         bool check_move(Move m, Side s);
         MoveResult do_move(Move m, Side s);
         void undo_move(MoveResult m, Side s);
-        vector<Move> get_moves(Side s);
+        void get_moves(Side s, Move * arr, int * n);
         int count(Side s);
         int count_black();
         int count_white();

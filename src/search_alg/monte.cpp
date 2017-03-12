@@ -10,6 +10,9 @@ using namespace asimov;
 Move SearchMonteCarlo::search(BitBoard &b, int max_time, int max_depth, Side turn) {
 
     vector<Move> mvs = b.get_moves(turn);
+    if (b.count_black() == 2 && b.count_white() == 0) {
+        return mvs[0];
+    }
 
     if (mvs.size() == 0) {
         cerr << "Passing!" << endl;

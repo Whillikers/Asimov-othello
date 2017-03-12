@@ -32,6 +32,5 @@ namespace asimov {
 
         virtual Move search(BitBoard &b, int max_time, int max_depth, Side turn);
 
-        ABResult alpha_beta_search(BitBoard &bd, float a, float b, int d, Side turn);
     };
 }

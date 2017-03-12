@@ -7,15 +7,15 @@ BINDIR = bin
 OBJDIR = obj
 DOCDIR = doc
 
-CPPFLAGS = -std=c++11 -Wall -pedantic -I$(SRCDIR)
-LDFLAGS =
+CPPFLAGS = -std=c++11 -Wall -pedantic -I$(SRCDIR) -Ofast
+LDFLAGS = -Ofast
 DOCGENFLAGS =
 UNUSED_DEBUG_FLAGS = -ggdb
 DEBUGFLAGS = -g
 
 
 #Source files for each search algorithm
-SEARCH_SRCS = mtdf.cpp minimax.cpp monte.cpp alphabeta.cpp
+SEARCH_SRCS = alphabeta.cpp minimax.cpp # mtdf.cpp  monte.cpp
 #Source files for each heuristic method
 HEURIS_SRCS = basic.cpp lin_fit.cpp better1.cpp
 
@@ -39,6 +39,7 @@ OPENING_OBJS = $(COMMON_OBJS) $(OPENING_SRCS:.cpp=.o)
 TESTGAME_OBJS = $(TESTGAME_SRCS:.cpp=.o)
 TESTMINIMAX_OBJS = $(COMMON_OBJS) $(TESTMINIMAX_SRCS:.cpp=.o)
 TESTBOARD_OBJS = $(TESTBOARD_SRCS:.cpp=.o)
+PLAYSELF_OBJS = $(COMMON_OBJS) play_self.o
 
 BINS = asimov
 
@@ -73,12 +74,16 @@ testminimax: $(addprefix $(OBJDIR)/,$(TESTMINIMAX_OBJS))
 testboard: $(addprefix $(OBJDIR)/,$(TESTBOARD_OBJS))
 	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
 
+playself: DEBUGFLAGS = $(UNUSED_DEBUG_FLAGS)
+playself: $(addprefix $(OBJDIR)/,$(PLAYSELF_OBJS))
+	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS) -lprofiler -ggdb
+
 $(OBJDIR)/%.o: $(SRCDIR)/$(notdir %.cpp)
 	mkdir -p $(dir $@)
 	$(CC) -c $(CPPFLAGS) $(DEBUGFLAGS) $< -o $@
 
 clean:
-	rm -rf $(addprefix $(BINDIR)/,$(BINS)) $(OBJDIR)/*.o
+	rm -rf $(addprefix $(BINDIR)/,$(BINS)) $(OBJDIR)/*
 
 clean-docs:
 	rm -r $(DOCDIR)/*

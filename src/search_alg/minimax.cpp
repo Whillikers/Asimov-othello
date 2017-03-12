@@ -15,39 +15,39 @@ using namespace asimov;
  * @returns The best move found in the search time
  */
 Move SearchMinimax::search(BitBoard &b, int max_time, int max_depth, Side turn) {
-    int bst;
+    int bst = 0;
     float g;
+    int n = 0;
+    Move mvs[MAX_MOVES];
 
-    vector<Move> mvs = b.get_moves(turn);
-    if (mvs.size() == 0) {
+    b.get_moves(turn, mvs, &n);
+    if (n == 0) {
         return Move();
     }
 
     if (turn == WHITE) {
         g = -std::numeric_limits<float>::infinity();
-        for (int i = 0; i < mvs.size(); i++) {
-            MoveResult res = b.do_move(mvs[i], turn);
+        for (int i = 0; i < n; i++) {
+            BitBoard bt = b;
+            bt.do_move(mvs[i], turn);
 
-            float v = minimax(b, max_depth-1, OTHER_SIDE(turn));
+            float v = minimax(bt, max_depth-1, OTHER_SIDE(turn));
             if (v > g) {
                 g = v;
                 bst = i;
             }
-
-            b.undo_move(res, turn);
         }
     } else {
         g = std::numeric_limits<float>::infinity();
-        for (int i = 0; i < mvs.size(); i++) {
-            MoveResult res = b.do_move(mvs[i], turn);
+        for (int i = 0; i < n; i++) {
+            BitBoard bt = b;
+            bt.do_move(mvs[i], turn);
 
-            float v = minimax(b, max_depth-1, OTHER_SIDE(turn));
+            float v = minimax(bt, max_depth-1, OTHER_SIDE(turn));
             if (v < g) {
                 g = v;
                 bst = i;
             }
-
-            b.undo_move(res, turn);
         }
     }
 
@@ -64,34 +64,35 @@ Move SearchMinimax::search(BitBoard &b, int max_time, int max_depth, Side turn) 
  * @returns The best minimax score of of the given board on the given turn.
  */
 float SearchMinimax::minimax(BitBoard &b, int d, Side turn) {
+    int n = 0;
+    Move mvs[MAX_MOVES];
+
     if (d == 0 || b.is_done()) {
         return h->evaluate(b);
     }
 
     float g;
 
-    vector<Move> mvs = b.get_moves(turn);
-    if (mvs.size() == 0) {
+    b.get_moves(turn, mvs, &n);
+    if (n == 0) {
         return minimax(b, d-1, OTHER_SIDE(turn));
     }
 
     if (turn == WHITE) {
         g = -std::numeric_limits<float>::infinity();
-        for (int i = 0; i < mvs.size(); i++) {
-            MoveResult res = b.do_move(mvs[i], turn);
+        for (int i = 0; i < n; i++) {
+            BitBoard bt = b;
+            bt.do_move(mvs[i], turn);
 
-            g = max(g, minimax(b, d-1, OTHER_SIDE(turn)));
-
-            b.undo_move(res, turn);
+            g = max(g, minimax(bt, d-1, OTHER_SIDE(turn)));
         }
     } else {
         g = std::numeric_limits<float>::infinity();
-        for (int i = 0; i < mvs.size(); i++) {
-            MoveResult res = b.do_move(mvs[i], turn);
+        for (int i = 0; i < n; i++) {
+            BitBoard bt = b;
+            bt.do_move(mvs[i], turn);
 
-            g = min(g, minimax(b, d-1, OTHER_SIDE(turn)));
-
-            b.undo_move(res, turn);
+            g = min(g, minimax(bt, d-1, OTHER_SIDE(turn)));
         }
     }
 

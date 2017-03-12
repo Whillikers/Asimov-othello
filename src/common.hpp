@@ -9,6 +9,7 @@ enum Side {
 
 #define OTHER_SIDE(s)   (((s)==WHITE)?BLACK:WHITE)
 #define TURN_MAX(s)     (((s)==WHITE)?1.0:-1.0)
+#define MAX_MOVES       (28)
 
 class Move {
 

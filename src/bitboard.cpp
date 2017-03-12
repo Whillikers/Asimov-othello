@@ -237,8 +237,8 @@ BitBoard::BitBoard() {
 }
 
 bool BitBoard::is_done() {
-    find_moves(BLACK);
-    find_moves(WHITE);
+    // find_moves(BLACK);
+    // find_moves(WHITE);
     return bmoves.bitmask == 0 && wmoves.bitmask == 0;
 }
 
@@ -266,11 +266,9 @@ bool BitBoard::has_moves(Side s) {
 bool BitBoard::check_move(Move m, Side s) {
     //return true;
     bool msk = (s==BLACK);
-    int x = m.getX();
-    int y = m.getY();
     return (
-        ((bmoves.rows[y] & (1<<x)) > 0 && msk) ||
-        ((wmoves.rows[y] & (1<<x)) > 0 && !msk)
+        ((bmoves.rows[m.y] & ((1&msk)<<(m.x))) != 0) ||
+        ((wmoves.rows[m.y] & ((1&!msk)<<(m.x))) != 0)
     );
 }
 
@@ -287,35 +285,62 @@ MoveResult BitBoard::do_move(Move m, Side s) {
     if (!check_move(m, s)) return mr;
 
 
-    Side other = OTHER_SIDE(s);
-    for (int dx = -1; dx <= 1; dx++) {
-        for (int dy = -1; dy <= 1; dy++) {
-            if (dy == 0 && dx == 0) continue;
+    // Side other = OTHER_SIDE(s);
+    // for (int dx = -1; dx <= 1; dx++) {
+    //     for (int dy = -1; dy <= 1; dy++) {
+    //         if (dy == 0 && dx == 0) continue;
+    //
+    //         int c = 0;
+    //
+    //         int x = X;
+    //         int y = Y;
+    //         do {
+    //             x += dx;
+    //             y += dy;
+    //         } while (onBoard(x, y) && get(other, x, y));
+    //
+    //         if (onBoard(x, y) && get(s, x, y)) {
+    //             x = X;
+    //             y = Y;
+    //             x += dx;
+    //             y += dy;
+    //             while (onBoard(x, y) && get(other, x, y)) {
+    //                 c++;
+    //                 set(s, x, y);
+    //                 x += dx;
+    //                 y += dy;
+    //             }
+    //             mr.set(dx, dy, c);
+    //         }
+    //     }
+    // }
 
-            int c = 0;
+    u64 pro, gen, org, msk = 0;
+    data o;
+    o.bitmask = 0;
+    o.rows[Y] |= (1<<X);
+    org = o.bitmask;
 
-            int x = X;
-            int y = Y;
-            do {
-                x += dx;
-                y += dy;
-            } while (onBoard(x, y) && get(other, x, y));
-
-            if (onBoard(x, y) && get(s, x, y)) {
-                x = X;
-                y = Y;
-                x += dx;
-                y += dy;
-                while (onBoard(x, y) && get(other, x, y)) {
-                    c++;
-                    set(s, x, y);
-                    x += dx;
-                    y += dy;
-                }
-                mr.set(dx, dy, c);
-            }
-        }
+    if (s == BLACK) {
+        gen = black.bitmask;
+        pro = white.bitmask;
+    } else {
+        gen = white.bitmask;
+        pro = black.bitmask;
     }
+
+    msk |= soutOccl(gen, pro) & nortOccl(org, pro);
+    msk |= nortOccl(gen, pro) & soutOccl(org, pro);
+    msk |= eastOccl(gen, pro) & westOccl(org, pro);
+    msk |= westOccl(gen, pro) & eastOccl(org, pro);
+    msk |= soWeOccl(gen, pro) & noEaOccl(org, pro);
+    msk |= noEaOccl(gen, pro) & soWeOccl(org, pro);
+    msk |= soEaOccl(gen, pro) & noWeOccl(org, pro);
+    msk |= noWeOccl(gen, pro) & soEaOccl(org, pro);
+
+    black.bitmask ^= msk;
+    white.bitmask ^= msk;
+
     set(s, X, Y);
     find_moves(BLACK);
     find_moves(WHITE);
@@ -347,19 +372,62 @@ void BitBoard::undo_move(MoveResult mr, Side s) {
 }
 
 
-vector<Move> BitBoard::get_moves(Side s) {
-    vector<Move> mvs;
-
-    for (size_t x = 0; x < 8; x++) {
-        for (size_t y = 0; y < 8; y++) {
-            Move m(x,y);
-            if (check_move(m, s)) {
-                mvs.push_back(m);
-            }
+void BitBoard::get_moves(Side s, Move * arr, int * n) {
+    int i = 0;
+    Move m;
+    u64 msk = (s==BLACK)?bmoves.bitmask:wmoves.bitmask;
+    for (size_t y = 0; y < 8; y++) {
+        if (msk&1){
+            arr[i].x = 0;
+            arr[i].y = y;
+            i++;
         }
-    }
 
-    return mvs;
+        if (msk&2){
+            arr[i].x = 1;
+            arr[i].y = y;
+            i++;
+        }
+
+        if (msk&4){
+            arr[i].x = 2;
+            arr[i].y = y;
+            i++;
+        }
+
+        if (msk&8){
+            arr[i].x = 3;
+            arr[i].y = y;
+            i++;
+        }
+
+        if (msk&16){
+            arr[i].x = 4;
+            arr[i].y = y;
+            i++;
+        }
+
+        if (msk&32){
+            arr[i].x = 5;
+            arr[i].y = y;
+            i++;
+        }
+
+        if (msk&64){
+            arr[i].x = 6;
+            arr[i].y = y;
+            i++;
+        }
+
+        if (msk&128){
+            arr[i].x = 7;
+            arr[i].y = y;
+            i++;
+        }
+
+        msk >>= 8;
+    }
+    *n = i;
 }
 
 
@@ -390,7 +458,13 @@ int BitBoard::count_white() {
 }
 
 int BitBoard::count_moves(Side s) {
+    int count = 0;
     u64 cntr = (s == BLACK)?bmoves.bitmask:wmoves.bitmask;
+    for (size_t i = 0; i < 64; i++) {
+        count += cntr & 1;
+        cntr >>= 1;
+    }
+    return count;
 }
 
 BoardNormalForm BitBoard::to_normal_form() {
@@ -429,15 +503,15 @@ void BitBoard::display(Side s) {
         std::cout << std::endl;
     }
 
-    if (s == BLACK) {
-        for (int i = 0; i < 8; i++) {
-            bitset<8> x (bmoves.rows[i]);
-            cout << x << endl;
-        }
-    } else {
-        for (int i = 0; i < 8; i++) {
-            bitset<8> x (wmoves.rows[i]);
-            cout << x << endl;
-        }
-    }
+    // if (s == BLACK) {
+    //     for (int i = 0; i < 8; i++) {
+    //         bitset<8> x (bmoves.rows[i]);
+    //         cout << x << endl;
+    //     }
+    // } else {
+    //     for (int i = 0; i < 8; i++) {
+    //         bitset<8> x (wmoves.rows[i]);
+    //         cout << x << endl;
+    //     }
+    // }
 }
