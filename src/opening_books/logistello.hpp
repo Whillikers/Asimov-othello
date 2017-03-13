@@ -4,8 +4,6 @@
 #include <unordered_map>
 #include <fstream>
 
-// #define FILEPATH "src/opening_books/logistello-book.gam"
-//TODO: Get a better opening book
 #define FILEPATH "src/opening_books/logistello-book-shortened-clipped.gam"
 #define CHARSHIFT 48 // The difference between 1 as a character and a number
 
@@ -45,6 +43,6 @@ namespace asimov {
         public:
             BookLogistello();
             ~BookLogistello();
-            Move nextMove(Board* b);
+            Move nextMove(BitBoard b);
     };
 }

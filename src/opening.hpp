@@ -1,6 +1,6 @@
 #pragma once
 
-#include "board.hpp"
+#include "bitboard.hpp"
 
 namespace asimov {
 
@@ -15,7 +15,7 @@ namespace asimov {
 
     public:
         virtual ~OpeningBook();
-        virtual Move nextMove(Board* b); // Returns (-1, -1) if none is found
+        virtual Move nextMove(BitBoard b); // Returns (-1, -1) if none is found
         bool inBook = true; // Are we still getting moves from the book?
     };
 }

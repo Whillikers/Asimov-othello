@@ -69,10 +69,9 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         current.do_move(*opponentsMove, OTHER_SIDE(side));
     }
 
-    // TODO: Uncomment when the board normal form issue is fixed
-    // if (book != nullptr && book->inBook) {
-        // *m = book->nextMove(current);
-    // }
+    if (book != nullptr && book->inBook) {
+        *m = book->nextMove(current);
+    }
 
     if (m->isPass()) {
         if (64 - current.nmoves <= solverDepth) {

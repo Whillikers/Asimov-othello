@@ -3,7 +3,7 @@
 using namespace asimov;
 
 BookLogistello::BookLogistello() {
-    Board* b = new Board();
+    BitBoard b;
     Side toMove = BLACK;
     std::ifstream file(FILEPATH);
     std::string line;
@@ -15,27 +15,27 @@ BookLogistello::BookLogistello() {
 
         while (line.length() >= 3) {
             mv = stringToMove(line.substr(0, 3));
-            table.insert(std::make_pair(b->to_normal_form(), mv));
-            b->doMove(mv, toMove);
+            table.insert(std::make_pair(b.to_normal_form(), mv));
+            b.do_move(mv, toMove);
 
-            BoardNormalForm bn = b->to_normal_form();
+            BoardNormalForm bn = b.to_normal_form();
 
             toMove = (toMove == BLACK) ? WHITE : BLACK;
             line = line.substr(3, line.length());
         }
 
         toMove = BLACK;
-        *b = b->empty();
+        b = BitBoard();
     }
-
-    delete b;
 }
 
 BookLogistello::~BookLogistello() {}
 
-Move BookLogistello::nextMove(Board* b) {
-    BoardAnnotatedNormalForm bAnno = b->to_annotated_normal_form();
-    BoardNormalForm bNorm = bAnno.normalForm;
+Move BookLogistello::nextMove(BitBoard b) {
+    // TODO: Use normalized equivalent moves
+    // BoardAnnotatedNormalForm bAnno = b.to_annotated_normal_form();
+    // BoardNormalForm bNorm = bAnno.normalForm;
+    BoardNormalForm bNorm = b.to_normal_form();
 
     // See if we're still in the book
     if (table.find(bNorm) == table.end()) {
@@ -44,7 +44,8 @@ Move BookLogistello::nextMove(Board* b) {
     }
 
     Move moveNormal = table.at(bNorm); // Currently, best move on a normalized board
-    return bAnno.undoTransformation(moveNormal);
+    // return bAnno.undoTransformation(moveNormal);
+    return moveNormal;
 }
 
 /**
