@@ -15,7 +15,7 @@
 Player::Player(Side side) {
     this->side = side;
     ply = 5;
-    solverDepth = 16;
+    solverDepth = 14;
     h = new Better1Heuristic();
     s = new SearchMonteCarlo(h);
     solverH = new SolverHeuristic();
