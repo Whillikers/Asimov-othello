@@ -192,6 +192,7 @@ BitBoard::BitBoard() {
     white.bitmask = 0;
     bmoves.bitmask = 0;
     wmoves.bitmask = 0;
+    nmoves = 0;
     set(BLACK, 4, 3);
     set(BLACK, 3, 4);
     set(WHITE, 3, 3);
@@ -282,6 +283,7 @@ MoveResult BitBoard::do_move(Move m, Side s) {
     set(s, X, Y);
     find_moves(BLACK);
     find_moves(WHITE);
+    nmoves++;
     return mr;
 }
 
@@ -307,6 +309,7 @@ void BitBoard::undo_move(MoveResult mr, Side s) {
 
     find_moves(BLACK);
     find_moves(WHITE);
+    nmoves--;
 }
 
 
