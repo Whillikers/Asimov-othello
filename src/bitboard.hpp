@@ -1,11 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <cstring>
 #include "common.hpp"
 
 using namespace std;
-
-typedef unsigned long long u64;
 
 namespace asimov {
     class BitBoard {
@@ -37,10 +36,14 @@ namespace asimov {
         int count(Side s);
         int count_black();
         int count_white();
+        u64 stability(Side s);
+        u64 mobility(Side s);
 
         int count_moves(Side s);
 
         BoardNormalForm to_normal_form();
+        u64 hash();
+        char * to_string(Side s);
 
         void display(Side s);
     };

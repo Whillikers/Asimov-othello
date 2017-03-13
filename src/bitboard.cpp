@@ -71,6 +71,10 @@ u64 soutOccl(u64 gen, u64 pro) {
     return gen;
 }
 
+u64 sout_one(u64 gen) {
+    return gen >> 8;
+}
+
 u64 nortOccl(u64 gen, u64 pro) {
     gen |= pro & (gen <<  8);
     pro &=       (pro <<  8);
@@ -78,6 +82,10 @@ u64 nortOccl(u64 gen, u64 pro) {
     pro &=       (pro << 16);
     gen |= pro & (gen << 32);
     return gen;
+}
+
+u64 nort_one(u64 gen) {
+    return gen << 8;
 }
 
 u64 eastOccl(u64 gen, u64 pro) {
@@ -90,6 +98,11 @@ u64 eastOccl(u64 gen, u64 pro) {
     return gen;
 }
 
+u64 east_one(u64 gen) {
+    gen &= notAFile;
+    return gen << 1;
+}
+
 u64 noEaOccl(u64 gen, u64 pro) {
     pro &= notAFile;
     gen |= pro & (gen <<  9);
@@ -98,6 +111,11 @@ u64 noEaOccl(u64 gen, u64 pro) {
     pro &=       (pro << 18);
     gen |= pro & (gen << 36);
     return gen;
+}
+
+u64 noea_one(u64 gen) {
+    gen &= notAFile;
+    return gen << 9;
 }
 
 u64 soEaOccl(u64 gen, u64 pro) {
@@ -110,6 +128,11 @@ u64 soEaOccl(u64 gen, u64 pro) {
     return gen;
 }
 
+u64 soea_one(u64 gen) {
+    gen &= notAFile;
+    return gen >> 7;
+}
+
 u64 westOccl(u64 gen, u64 pro) {
     pro &= notHFile;
     gen |= pro & (gen >> 1);
@@ -118,6 +141,11 @@ u64 westOccl(u64 gen, u64 pro) {
     pro &=       (pro >> 2);
     gen |= pro & (gen >> 4);
     return gen;
+}
+
+u64 west_one(u64 gen) {
+    gen &= notHFile;
+    return gen >> 1;
 }
 
 u64 soWeOccl(u64 gen, u64 pro) {
@@ -130,6 +158,11 @@ u64 soWeOccl(u64 gen, u64 pro) {
     return gen;
 }
 
+u64 sowe_one(u64 gen) {
+    gen &= notHFile;
+    return gen >> 9;
+}
+
 u64 noWeOccl(u64 gen, u64 pro) {
     pro &= notHFile;
     gen |= pro & (gen <<  7);
@@ -138,6 +171,11 @@ u64 noWeOccl(u64 gen, u64 pro) {
     pro &=       (pro << 14);
     gen |= pro & (gen << 28);
     return gen;
+}
+
+u64 nowe_one(u64 gen) {
+    gen &= notHFile;
+    return gen << 7;
 }
 
 
@@ -279,10 +317,10 @@ MoveResult BitBoard::do_move(Move m, Side s) {
     if (m.isPass()) return mr;
 
 
-    int X = mr.x = m.getX();
-    int Y = mr.y = m.getY();
+    int X = mr.x = m.x;
+    int Y = mr.y = m.y;
     // Ignore if move is invalid.
-    if (!check_move(m, s)) return mr;
+    //if (!check_move(m, s)) return mr;
 
 
     // Side other = OTHER_SIDE(s);
@@ -467,6 +505,40 @@ int BitBoard::count_moves(Side s) {
     return count;
 }
 
+u64 BitBoard::stability(Side s) {
+    //sides
+    const u64   top = 255ULL,
+                bot = 18374686479671623680ULL,
+                lft = 72340172838076673ULL,
+                rht = 9259542123273814144ULL;
+    u64 gen = (s = BLACK)?black.bitmask:white.bitmask;
+    u64 pcs = black.bitmask|white.bitmask;
+
+    u64 vrt = nortOccl(bot & pcs, pcs) & soutOccl(top & pcs, pcs),
+        hrz = eastOccl(lft & pcs, pcs) & westOccl(rht & pcs, pcs),
+        dg1 = noEaOccl((bot|lft) & pcs, pcs) & soWeOccl((top|rht) & pcs, pcs),
+        dg2 = noWeOccl((bot|rht) & pcs, pcs) & soEaOccl((top|lft) & pcs, pcs);
+
+    u64 stb = (0x8100000000000081ULL | (vrt & hrz & dg1 & dg2)) & gen;
+
+    //expand stable areas. At most 16 iterations necessary to reach from one
+    //corner to the other
+    for (size_t i = 0; i < 16; i++) {
+        stb |= gen & (
+            (nort_one(stb) | sout_one(stb) | vrt) &
+            (east_one(stb) | west_one(stb) | hrz) &
+            (noea_one(stb) | sowe_one(stb) | dg1) &
+            (nowe_one(stb) | soea_one(stb) | dg2)
+        );
+    }
+
+    return stb;
+}
+
+u64 BitBoard::mobility(Side s) {
+    return (s==BLACK)?bmoves.bitmask:wmoves.bitmask;
+}
+
 BoardNormalForm BitBoard::to_normal_form() {
     u64 b = black.bitmask, w = white.bitmask;
     BoardNormalForm mn = make_pair(b,w);
@@ -486,6 +558,7 @@ BoardNormalForm BitBoard::to_normal_form() {
 }
 
 void BitBoard::display(Side s) {
+    cout << endl << hash() << endl;
     std::cout << " 1 2 3 4 5 6 7 8" << std::endl;
     for (int y = 0; y < 8; y++) {
         std::cout << (y+1);
@@ -514,4 +587,38 @@ void BitBoard::display(Side s) {
     //         cout << x << endl;
     //     }
     // }
+}
+
+//http://www.isthe.com/chongo/tech/comp/fnv/
+u64 BitBoard::hash() {
+    //64-bit hash prime
+    const u64 fnv_prime = 1099511628211ULL;
+    //offset basis
+    u64 hash = 14695981039346656037ULL, b, w;
+    b = black.bitmask;
+    w = white.bitmask;
+    for (int i = 0; i < 8; i++) {
+        hash = (hash*fnv_prime)^(b & 0xFF);
+        hash = (hash*fnv_prime)^(w & 0xFF);
+        b >>= 8;
+        w >>= 8;
+    }
+    return hash;
+}
+
+char * BitBoard::to_string(Side s) {
+    char * buf = new char[129];
+    buf[128] = 0;
+
+    u64 b = black.bitmask;
+    u64 w = white.bitmask;
+
+    for (size_t i = 0; i < 64; i++) {
+        buf[i] = (b & 1)?'1':'0';
+        b >>= 1;
+        buf[i+64] = (w & 1)?'1':'0';
+        w >>= 1;
+    }
+
+    return buf;
 }

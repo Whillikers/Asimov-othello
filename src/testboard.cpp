@@ -6,7 +6,7 @@ using namespace std;
 int main(int argc, char* argv) {
 
     asimov::BitBoard b;
-    vector<MoveResult> moves;
+    vector<asimov::BitBoard> moves;
 
     Side turn = BLACK;
 
@@ -24,7 +24,8 @@ int main(int argc, char* argv) {
             cin >> x >> y;
             m = Move(x-1, y-1);
             if (b.check_move(m, turn)) {
-                moves.push_back(b.do_move(m, turn));
+                moves.push_back(b);
+                b.do_move(m, turn);
                 turn = OTHER_SIDE(turn);
                 b.display(turn);
             }
@@ -32,7 +33,7 @@ int main(int argc, char* argv) {
         case 'u': case 'U':
             if (moves.size() > 0) {
                 turn = OTHER_SIDE(turn);
-                b.undo_move(moves.back(), turn);
+                b = moves.back();
                 moves.pop_back();
                 b.display(turn);
             }

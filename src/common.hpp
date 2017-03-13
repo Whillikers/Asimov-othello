@@ -56,6 +56,9 @@ struct MoveResult {
     }
 };
 
-typedef std::pair<unsigned long long, unsigned long long> BoardNormalForm;
+
+typedef unsigned long long u64;
+
+typedef std::pair<u64, u64> BoardNormalForm;
 
 #endif
