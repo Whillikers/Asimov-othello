@@ -6,3 +6,5 @@ asimov
 testminimax
 prf/*
 WTH*
+policy_training_data.txt
+value_training_data.txt
