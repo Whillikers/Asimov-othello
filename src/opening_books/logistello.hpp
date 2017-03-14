@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <fstream>
 
-#define FILEPATH "src/opening_books/logistello-book-shortened-clipped.gam"
+#define FILEPATH "bin/asimov-book.gam"
 #define CHARSHIFT 48 // The difference between 1 as a character and a number
 
 /**
