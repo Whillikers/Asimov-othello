@@ -23,13 +23,15 @@ namespace asimov {
      */
     class SearchAlphaBeta : public Search {
     private:
-
+        float low, high;
     protected:
         TranspositionTable *table;
     public:
         SearchAlphaBeta(Heuristic *_h);
+        SearchAlphaBeta(Heuristic *_h, float l, float h);
         ~SearchAlphaBeta();
 
+	float alpha_beta_search(BitBoard &bd, float a, float b, int d, Side turn);
         virtual Move search(BitBoard &b, int max_time, int max_depth, Side turn);
 
     };

@@ -58,7 +58,7 @@ void BitBoard::unset(int x, int y) {
  *=============================================================================
  */
 
-usigned int popcount_64(u64) {
+unsigned int popcount_64(u64 x) {
     x = (x & 0x5555555555555555ULL) + ((x >> 1) & 0x5555555555555555ULL);
     x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);
     x = (x & 0x0F0F0F0F0F0F0F0FULL) + ((x >> 4) & 0x0F0F0F0F0F0F0F0FULL);
@@ -517,6 +517,11 @@ int BitBoard::count_moves(Side s) {
     // }
     // return count;
     return popcount_64((s == BLACK)?bmoves.bitmask:wmoves.bitmask);
+}
+
+
+u64 BitBoard::pieces(Side s) {
+    return (s==BLACK)?black.bitmask:white.bitmask;
 }
 
 u64 BitBoard::stability(Side s) {

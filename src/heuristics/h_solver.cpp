@@ -3,16 +3,16 @@
 using namespace asimov;
 
 SolverHeuristic::SolverHeuristic() {
-
 }
 
-SolverHeuristic::~SolverHeuristic() {
+float SolverHeuristic::evaluate(BitBoard &b, Side s) {
+	int dif = b.count_black()-b.count_white();
 
-}
-
-/**
- * @brief A heuristic which only cares which player has won the game.
- */
-float SolverHeuristic::evaluate(BitBoard &b) {
-    return (b.count_white() > b.count_black()) ? 1.0 : -1.0;
+	if (dif == 0) {
+		return dif;
+	} else if (dif > 0) {
+		return 1;
+	} else {
+		return -1;
+	}
 }

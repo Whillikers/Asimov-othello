@@ -68,7 +68,7 @@ float SearchMinimax::minimax(BitBoard &b, int d, Side turn) {
     Move mvs[MAX_MOVES];
 
     if (d == 0 || b.is_done()) {
-        return h->evaluate(b);
+        return h->evaluate(b, turn);
     }
 
     float g;

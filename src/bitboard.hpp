@@ -36,6 +36,8 @@ namespace asimov {
         int count(Side s);
         int count_black();
         int count_white();
+
+        u64 pieces(Side s);
         u64 stability(Side s);
         u64 mobility(Side s);
 

@@ -2,11 +2,14 @@
 #include "heuristics/basic.hpp"
 #include "heuristics/better1.hpp"
 #include "heuristics/h_solver.hpp"
+#include "heuristics/ml-heuristic.hpp"
 #include "search_alg/mtdf.hpp"
 #include "search_alg/minimax.hpp"
-#include "search_alg/monte.hpp"
+//#include "search_alg/monte.hpp"
 #include "search_alg/alphabeta.hpp"
 #include "opening_books/logistello.hpp"
+
+#define DEL_IFN_NULL(x)     if ((x) != nullptr) {delete (x);}
 
 /**
  * Constructor for the player; initialize everything here. The side your AI is
@@ -16,14 +19,17 @@
 Player::Player(Side side) {
     this->side = side;
     ply = 20;
-    h = new Better1Heuristic();
+    h = new Better1Heuristic();//MLHeuristic("","");
     s = new SearchAlphaBeta(h);
-    ply = 5;
-    solverDepth = 14;
-    h = new Better1Heuristic();
-    s = new SearchMonteCarlo(h);
+    ply = 7;
+    solverDepth = 20;
     solverH = new SolverHeuristic();
-    solver = new SearchMinimax(solverH);
+    if (side == BLACK) {
+        solver = new SearchAlphaBeta(solverH, 0.5, 1.5);
+    } else {
+        solver = new SearchAlphaBeta(solverH, -1.5, -0.5);
+    }
+        
     book = new BookLogistello();
 }
 
@@ -45,8 +51,11 @@ Player::Player(Side side, bool testingMinimax) {
  * Destructor for the player.
  */
 Player::~Player() {
-    if (s == nullptr) {delete s;}
-    if (h == nullptr) {delete h;}
+    DEL_IFN_NULL(s);
+    DEL_IFN_NULL(h);
+    DEL_IFN_NULL(solver);
+    DEL_IFN_NULL(solverH);
+    DEL_IFN_NULL(book);
 }
 
 /**
@@ -81,6 +90,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         if (64 - current.nmoves <= solverDepth) {
             *m = solver->search(current, msLeft, 64 - current.nmoves, side);
         } else {
+            cerr << "test: " << ply << endl;
             *m = s->search(current, msLeft, ply, side);
         }
     }

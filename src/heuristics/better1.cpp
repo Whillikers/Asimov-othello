@@ -10,26 +10,40 @@ Better1Heuristic::~Better1Heuristic() {
 
 }
 
+unsigned int popcount_64b(u64 x) {
+    x = (x & 0x5555555555555555ULL) + ((x >> 1) & 0x5555555555555555ULL);
+    x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);
+    x = (x & 0x0F0F0F0F0F0F0F0FULL) + ((x >> 4) & 0x0F0F0F0F0F0F0F0FULL);
+    return (x * 0x0101010101010101ULL) >> 56;
+}
+
 /**
  * @brief Better1Heuristic is slightly more advanced.
  */
-float Better1Heuristic::evaluate(BitBoard &b) {
+float Better1Heuristic::evaluate(BitBoard &b, Side s) {
     float score = 0.0;
     float corner = 11.0;
     float corner_access = 1.1;
     float edge = 6.0;
     float edge_access = 1.25;
     float other = 2.0;
-    float mobility = 5.0;
+    float mobility = 4.0;
+    float stability = 5.0;
+
+
+    // u64 bp = b.pieces(BLACK);
+    // u64 wp = b.pieces(WHITE);
+    // const u64 corners = 0x8100000000000081;
+    // score += popcount_64(corners & bp) -
 
     for (size_t x = 0; x < 8; x++) {
         for (size_t y = 0; y < 8; y++) {
 
             float sc = 0.0;
             if (b.get(WHITE,x,y)) {
-                sc = 1.0;
-            } else if (b.get(BLACK,x,y)) {
                 sc = -1.0;
+            } else if (b.get(BLACK,x,y)) {
+                sc = 1.0;
             }
 
             if ((x==0 || x == 7) && (y == 0 || y == 7)) {
@@ -46,7 +60,12 @@ float Better1Heuristic::evaluate(BitBoard &b) {
         }
     }
 
+    //count mobility
     score += (b.count_moves(WHITE) - b.count_moves(BLACK)) * mobility;
+
+    //count how many stable moves there are
+    score += (popcount_64b(b.stability(BLACK)) - popcount_64b(b.stability(WHITE)))
+                *stability;
 
     return score;
 }
