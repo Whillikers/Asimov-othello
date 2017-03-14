@@ -7,8 +7,15 @@ BINDIR = bin
 OBJDIR = obj
 DOCDIR = doc
 
-CPPFLAGS = -std=c++11 -Wall -pedantic -I$(SRCDIR) -Ofast
-LDFLAGS = -Ofast
+MAKEFILE_DIR = $(HOME)/build/tensorflow/tensorflow/makefile/
+GEN_DIR = $(MAKEFILE_DIR)gen/
+
+TENSORFLOW_INC = \
+-I/usr/local/lib/python2.7/dist-packages/tensorflow/include
+#-I$(HOME)/build/tensorflow
+
+CPPFLAGS = -std=c++11 -Wall -pedantic -I$(SRCDIR) $(TENSORFLOW_INC) -Ofast
+LDFLAGS = -Ofast -L$(HOME)/lib/ -ltensorflow_cc
 DOCGENFLAGS =
 UNUSED_DEBUG_FLAGS = -ggdb
 DEBUGFLAGS = -g
@@ -16,8 +23,10 @@ DEBUGFLAGS = -g
 
 #Source files for each search algorithm
 SEARCH_SRCS = alphabeta.cpp minimax.cpp # mtdf.cpp  monte.cpp
+
 #Source files for each heuristic method
-HEURIS_SRCS = basic.cpp lin_fit.cpp better1.cpp h_solver.cpp
+HEURIS_SRCS = basic.cpp lin_fit.cpp better1.cpp h_solver.cpp ml-heuristic.cpp
+
 #Source files for each opening book
 BOOK_SRCS = logistello.cpp
 
@@ -26,11 +35,13 @@ COMMON_SRCS = bitboard.cpp player.cpp search.cpp opening.cpp heuristic.cpp \
 	$(addprefix search_alg/,$(SEARCH_SRCS)) \
 	$(addprefix heuristics/,$(HEURIS_SRCS)) \
 	$(addprefix opening_books/,$(BOOK_SRCS))
+
 #Source files for the full AI player
 ASIMOV_SRCS = wrapper.cpp
 
 OPENING_SRCS = $(ASIMOV_SRCS) opening_gen/generator.cpp
 
+#Testing source files
 TESTGAME_SRCS = testgame.cpp
 TESTMINIMAX_SRCS = testminimax.cpp
 
@@ -44,6 +55,7 @@ TESTMINIMAX_OBJS = $(COMMON_OBJS) $(TESTMINIMAX_SRCS:.cpp=.o)
 TESTBOARD_OBJS = $(TESTBOARD_SRCS:.cpp=.o)
 PLAYSELF_OBJS = $(COMMON_OBJS) play_self.o
 
+#ML training data generator sources and objs
 ML_VALUE_TRAIN_SRCS = ml-heuristic/train_value.cpp bitboard.cpp
 ML_POLICY_TRAIN_SRCS = ml-heuristic/train_policy.cpp bitboard.cpp
 

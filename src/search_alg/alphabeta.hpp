@@ -31,6 +31,7 @@ namespace asimov {
         SearchAlphaBeta(Heuristic *_h, float l, float h);
         ~SearchAlphaBeta();
 
+	float alpha_beta_search(BitBoard &bd, float a, float b, int d, Side turn);
         virtual Move search(BitBoard &b, int max_time, int max_depth, Side turn);
 
     };

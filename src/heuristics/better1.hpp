@@ -16,6 +16,6 @@ namespace asimov {
         Better1Heuristic();
         virtual ~Better1Heuristic();
 
-        virtual float evaluate(BitBoard &b);
+        virtual float evaluate(BitBoard &b, Side s);
     };
 }

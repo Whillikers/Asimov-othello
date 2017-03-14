@@ -1,12 +1,12 @@
 #pragma once
 
+#include <string>
 #include <utility>
 #include "bitboard.hpp"
+#include "heuristic.hpp"
 
 //include tensorflow information
 
-#include "tensorflow/cc/ops/const_op.h"
-#include "tensorflow/cc/ops/standard_ops.h"
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/tensor.h"
 #include "tensorflow/core/graph/default_device.h"
@@ -26,24 +26,24 @@ namespace asimov {
     /**
      * @brief an abstract class that represents a heuristic function.
      */
-    class MLHeuristic {
+    class MLHeuristic : public Heuristic {
     private:
         std::unique_ptr<tensorflow::Session> value_sess, policy_sess;
         //std::unique_ptr<tensorflow::GraphDef> tf_value, tf_policy;
     public:
-        MLHeuristic(char * value_net_path, char * policy_net_path);
+        MLHeuristic(std::string value_net_path, std::string policy_net_path);
         virtual ~MLHeuristic();
 
         /**
          * @brief Provides an evaluation of a board, positive for black advantage
          * negative for white advantage.
          */
-        virtual float evaluate(BitBoard &b);
+        virtual float evaluate(BitBoard &b, Side s);
 
         /**
          * @brief Attempts to order moves based on how how good they potentially
          * are by assigning weights to each index.
          */
-        virtual void order_moves(BitBoard &bd, int n, Move *rmvs, std::pair<float, int> *mvs);
+        virtual void order_moves(BitBoard &bd, Side s, int n, Move *rmvs, std::pair<float, int> *mvs);
     };
 }
