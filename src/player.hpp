@@ -5,6 +5,7 @@
 #include "common.hpp"
 #include "bitboard.hpp"
 #include "heuristic.hpp"
+#include "opening.hpp"
 #include "search.hpp"
 
 using namespace std;
@@ -15,8 +16,12 @@ class Player {
 private:
     Heuristic *h;
     Search *s;
+    Heuristic *solverH;
+    Search *solver;
+    OpeningBook *book;
     Side side;
     int ply;
+    int solverDepth;
 public:
     BitBoard current;
     Player(Side side);

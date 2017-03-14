@@ -41,6 +41,7 @@ namespace asimov {
 
         int count_moves(Side s);
 
+        int nmoves;
         BoardNormalForm to_normal_form();
         u64 hash();
         char * to_string(Side s);

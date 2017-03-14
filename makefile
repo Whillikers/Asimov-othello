@@ -17,12 +17,15 @@ DEBUGFLAGS = -g
 #Source files for each search algorithm
 SEARCH_SRCS = alphabeta.cpp minimax.cpp # mtdf.cpp  monte.cpp
 #Source files for each heuristic method
-HEURIS_SRCS = basic.cpp lin_fit.cpp better1.cpp
+HEURIS_SRCS = basic.cpp lin_fit.cpp better1.cpp h_solver.cpp
+#Source files for each opening book
+BOOK_SRCS = logistello.cpp
 
 COMMON_SRCS = bitboard.cpp player.cpp search.cpp opening.cpp heuristic.cpp \
 	transposition.cpp\
 	$(addprefix search_alg/,$(SEARCH_SRCS)) \
-	$(addprefix heuristics/,$(HEURIS_SRCS))
+	$(addprefix heuristics/,$(HEURIS_SRCS)) \
+	$(addprefix opening_books/,$(BOOK_SRCS))
 #Source files for the full AI player
 ASIMOV_SRCS = wrapper.cpp
 

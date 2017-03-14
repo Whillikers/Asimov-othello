@@ -1,10 +1,12 @@
 #include "player.hpp"
 #include "heuristics/basic.hpp"
 #include "heuristics/better1.hpp"
+#include "heuristics/h_solver.hpp"
 #include "search_alg/mtdf.hpp"
 #include "search_alg/minimax.hpp"
 #include "search_alg/monte.hpp"
 #include "search_alg/alphabeta.hpp"
+#include "opening_books/logistello.hpp"
 
 /**
  * Constructor for the player; initialize everything here. The side your AI is
@@ -16,12 +18,23 @@ Player::Player(Side side) {
     ply = 20;
     h = new Better1Heuristic();
     s = new SearchAlphaBeta(h);
+    ply = 5;
+    solverDepth = 14;
+    h = new Better1Heuristic();
+    s = new SearchMonteCarlo(h);
+    solverH = new SolverHeuristic();
+    solver = new SearchMinimax(solverH);
+    book = new BookLogistello();
 }
+
 Player::Player(Side side, bool testingMinimax) {
     this->side = side;
     ply = 5;
     h = new BasicHeuristic();
     s = new SearchMinimax(h);
+    solverH = nullptr;
+    solver = nullptr;
+    book = nullptr;
     if (testingMinimax) {
         ply = 2;
     } else {
@@ -50,18 +63,28 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-
     if (s == nullptr) {
         return nullptr;
     }
 
-    Move *m = new Move();
+    Move *m = new Move(-1, -1);
 
     if (opponentsMove != nullptr) {
         current.do_move(*opponentsMove, OTHER_SIDE(side));
     }
 
-    *m = s->search(current, msLeft, ply, side);
+    if (book != nullptr && book->inBook) {
+        *m = book->nextMove(current);
+    }
+
+    if (m->isPass()) {
+        if (64 - current.nmoves <= solverDepth) {
+            *m = solver->search(current, msLeft, 64 - current.nmoves, side);
+        } else {
+            *m = s->search(current, msLeft, ply, side);
+        }
+    }
+
 
     if (current.check_move(*m, side)) {
         current.do_move(*m,side);
