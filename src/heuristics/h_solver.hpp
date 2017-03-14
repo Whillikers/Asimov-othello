@@ -15,6 +15,6 @@ namespace asimov {
         SolverHeuristic();
         virtual ~SolverHeuristic();
 
-        virtual float evaluate(BitBoard &b);
+        virtual float evaluate(BitBoard &b, Side s);
     };
 }

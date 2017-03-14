@@ -5,6 +5,8 @@ using namespace asimov;
 SolverHeuristic::SolverHeuristic() {
 }
 
+SolverHeuristic::~SolverHeuristic() {}
+
 float SolverHeuristic::evaluate(BitBoard &b, Side s) {
 	int dif = b.count_black()-b.count_white();
 

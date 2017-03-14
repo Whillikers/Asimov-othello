@@ -10,12 +10,12 @@ DOCDIR = doc
 MAKEFILE_DIR = $(HOME)/build/tensorflow/tensorflow/makefile/
 GEN_DIR = $(MAKEFILE_DIR)gen/
 
-TENSORFLOW_INC = \
--I/usr/local/lib/python2.7/dist-packages/tensorflow/include
+# TENSORFLOW_INC = \
+# -I/usr/local/lib/python2.7/dist-packages/tensorflow/include
 #-I$(HOME)/build/tensorflow
 
-CPPFLAGS = -std=c++11 -Wall -pedantic -I$(SRCDIR) $(TENSORFLOW_INC) -Ofast
-LDFLAGS = -Ofast -L$(HOME)/lib/ -ltensorflow_cc
+CPPFLAGS = -std=c++11 -Wall -pedantic -I$(SRCDIR) -O2
+LDFLAGS = -Ofast -L$(HOME)/lib/
 DOCGENFLAGS =
 UNUSED_DEBUG_FLAGS = -ggdb
 DEBUGFLAGS = -g
