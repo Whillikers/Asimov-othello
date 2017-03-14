@@ -23,7 +23,7 @@ Player::Player(Side side) {
     h = new Better1Heuristic();
     s = new SearchMonteCarlo(h);
     solverH = new SolverHeuristic();
-    solver = new SearchMinimax(solverH);
+    solver = new SearchAlphaBeta(solverH);
     book = new BookLogistello();
 }
 

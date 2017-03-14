@@ -18,6 +18,15 @@ using namespace asimov;
 
 SearchAlphaBeta::SearchAlphaBeta(Heuristic *_h) : Search(_h) {
     table = new TranspositionTable(MAX_TRANSPOSITION_SIZE);
+    low = -INF;
+    high = INF;
+}
+
+
+SearchAlphaBeta::SearchAlphaBeta(Heuristic *_h, float l, float h) : Search(_h) {
+    table = new TranspositionTable(MAX_TRANSPOSITION_SIZE);
+    low = l;
+    high = h;
 }
 
 SearchAlphaBeta::~SearchAlphaBeta() {
@@ -53,16 +62,14 @@ float alpha_beta_simple(BitBoard &bd, float a, float b, int d, Side turn) {
     int n = 0;
     Move mvs[MAX_MOVES];
 
+    //should not be hit unless we are using the solver
     if (bd.is_done()) {
-        return bd.count_white()-bd.count_black();
+        return h->evaluate(bd);
+        //return bd.count_white()-bd.count_black();
     }
 
     if (d == 0) {
-        float total = 0;
-        for (int i = 0; i < MONTE_ITERS; i++) {
-            total += simulate(bd, turn);
-        }
-        return total/((float)MONTE_ITERS);
+        return h->evaluate(bd);
     }
 
     float g;
@@ -104,6 +111,7 @@ float alpha_beta_simple(BitBoard &bd, float a, float b, int d, Side turn) {
     return g;
 }
 
+//functions to sort pairs by their first float value in order to order moves.
 bool pair_less(pair<float, int> a, pair<float, int> b) {
     return a.first < b.first;
 }
@@ -117,16 +125,13 @@ float alpha_beta_search(BitBoard &bd, float a, float b, int d, Side turn) {
     Move rmvs[MAX_MOVES];
     pair<float, int> mvs[MAX_MOVES];
 
+    //should not be hit unless we are using the endgame solver
     if (bd.is_done()) {
-        return (bd.count_white()-bd.count_black());
+        return h->evaluate(bd);
     }
 
     if (d == 0) {
-        float total = 0;
-        for (int i = 0; i < MONTE_ITERS; i++) {
-            total += simulate(bd, turn);
-        }
-        return total/((float)MONTE_ITERS);
+        return h->evaluate(bd);
     }
 
     float g;
@@ -138,24 +143,10 @@ float alpha_beta_search(BitBoard &bd, float a, float b, int d, Side turn) {
     }
 
     //seed moves and sort them
-    int test_depth = max(0, min(3, d-3));
-    for (int i = 0; i < n; i++) {
-        BitBoard bt = bd;
-        bt.do_move(rmvs[i], turn);
-        //run alpha beta on some depth to get an estimate
-        float r;
-        if (d % 2 == 0) {
-            r = alpha_beta_simple(
-                bt, a, b, test_depth, OTHER_SIDE(turn)
-            );
-        } else {
-            r = i;
-        }
-        mvs[i] = make_pair(r, i);
-    }
+    h->order_moves(bd, rmvs, mvs, n);
 
 
-    if (turn == WHITE) {
+    if (turn == BLACK) {
         g = -INF;
         //sort the moves by their estimated score
         sort(mvs, mvs+(n+1), pair_more);
@@ -232,25 +223,25 @@ Move SearchAlphaBeta::search(BitBoard &b, int max_time, int max_depth, Side turn
         return Move();
     }
 
-    if (turn == WHITE) {
+    if (turn == BLACK) {
 
-        float alpha = g = -INF;
+        float alpha = g = low;
         for (int i = 0; i < n; i++) {
             BitBoard btmp = b;
             btmp.do_move(mvs[i], turn);
 
-            float v = alpha_beta_search(btmp, alpha, INF, SEARCH_DEPTH, OTHER_SIDE(turn));
+            float v = alpha_beta_search(btmp, alpha, high, SEARCH_DEPTH, OTHER_SIDE(turn));
 
             SET_MAX(g, best, v, i);
             alpha = max(alpha, g);
         }
     } else {
-        float beta = g = INF;
+        float beta = g = high;
         for (int i = 0; i < n; i++) {
             BitBoard btmp = b;
             btmp.do_move(mvs[i], turn);
 
-            float v = alpha_beta_search(btmp, -INF, beta, SEARCH_DEPTH, OTHER_SIDE(turn));
+            float v = alpha_beta_search(btmp, low, beta, SEARCH_DEPTH, OTHER_SIDE(turn));
 
             SET_MIN(g, best, v, i);
             beta = min(beta, g);

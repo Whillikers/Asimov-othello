@@ -519,6 +519,11 @@ int BitBoard::count_moves(Side s) {
     return popcount_64((s == BLACK)?bmoves.bitmask:wmoves.bitmask);
 }
 
+
+u64 BitBoard::pieces(Side s) {
+    return (s==BLACK)?black.bitmask:white.bitmask;
+}
+
 u64 BitBoard::stability(Side s) {
     //sides
     const u64   top = 255ULL,
