@@ -1,7 +1,7 @@
 #include "player.hpp"
 #include "heuristics/basic.hpp"
 #include "heuristics/better1.hpp"
-#include "heuristics/h_solver.hpp"
+// #include "heuristics/h_solver.hpp"
 #include "search_alg/mtdf.hpp"
 #include "search_alg/minimax.hpp"
 #include "search_alg/monte.hpp"
@@ -18,7 +18,7 @@ Player::Player(Side side) {
     solverDepth = 14;
     h = new Better1Heuristic();
     s = new SearchMonteCarlo(h);
-    solverH = new SolverHeuristic();
+    solverH = new BasicHeuristic();
     solver = new SearchMinimax(solverH);
     book = new BookLogistello();
 }
@@ -70,13 +70,16 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     }
 
     if (book != nullptr && book->inBook) {
+        fprintf(stderr, "Using book\n");
         *m = book->nextMove(current);
     }
 
     if (m->isPass()) {
         if (64 - current.nmoves <= solverDepth) {
+            fprintf(stderr, "Using solver\n");
             *m = solver->search(current, msLeft, 64 - current.nmoves, side);
         } else {
+            fprintf(stderr, "Using search\n");
             *m = s->search(current, msLeft, ply, side);
         }
     }

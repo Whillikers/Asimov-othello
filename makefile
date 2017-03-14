@@ -17,7 +17,7 @@ DEBUGFLAGS = -g
 #Source files for each search algorithm
 SEARCH_SRCS = mtdf.cpp minimax.cpp monte.cpp
 #Source files for each heuristic method
-HEURIS_SRCS = basic.cpp lin_fit.cpp better1.cpp h_solver.cpp
+HEURIS_SRCS = basic.cpp lin_fit.cpp better1.cpp
 #Source files for each opening book
 BOOK_SRCS = logistello.cpp
 
