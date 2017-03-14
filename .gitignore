@@ -1,10 +1,19 @@
+#Object files should not be commited
 *.o
 *.class
 *.swp
+
+#Binary programs don't need to be committed.
 testgame
 asimov
 testminimax
+trainpolicy
+trainvalue
+
+#Performance profiles don't need to be committed
 prf/*
+
+#these files are unecessarily large to be justifiably committed, and are just data
 WTH*
 policy_training_data.txt
 value_training_data.txt
