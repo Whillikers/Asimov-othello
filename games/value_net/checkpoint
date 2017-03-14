@@ -1,0 +1,6 @@
+model_checkpoint_path: "value_net-24"
+all_model_checkpoint_paths: "value_net-20"
+all_model_checkpoint_paths: "value_net-21"
+all_model_checkpoint_paths: "value_net-22"
+all_model_checkpoint_paths: "value_net-23"
+all_model_checkpoint_paths: "value_net-24"

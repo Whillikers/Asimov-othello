@@ -58,6 +58,13 @@ void BitBoard::unset(int x, int y) {
  *=============================================================================
  */
 
+usigned int popcount_64(u64) {
+    x = (x & 0x5555555555555555ULL) + ((x >> 1) & 0x5555555555555555ULL);
+    x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);
+    x = (x & 0x0F0F0F0F0F0F0F0FULL) + ((x >> 4) & 0x0F0F0F0F0F0F0F0FULL);
+    return (x * 0x0101010101010101ULL) >> 56;
+}
+
 //bitmasks to filter out certain Files
 const u64 notAFile = 0xfefefefefefefefe; // ~0x0101010101010101
 const u64 notHFile = 0x7f7f7f7f7f7f7f7f; // ~0x8080808080808080
@@ -475,34 +482,38 @@ int BitBoard::count(Side s) {
 
 
 int BitBoard::count_black() {
-    u64 cntr = black.bitmask;
-    int count = 0;
-    for (size_t i = 0; i < 64; i++) {
-        count += cntr & 1;
-        cntr >>= 1;
-    }
-    return count;
+    // u64 cntr = black.bitmask;
+    // int count = 0;
+    // for (size_t i = 0; i < 64; i++) {
+    //     count += cntr & 1;
+    //     cntr >>= 1;
+    // }
+    // return count;
+    return popcount_64(black.bitmask);
 }
 
 
 int BitBoard::count_white() {
-    u64 cntr = white.bitmask;
-    int count = 0;
-    for (size_t i = 0; i < 64; i++) {
-        count += cntr & 1;
-        cntr >>= 1;
-    }
-    return count;
+    // u64 cntr = white.bitmask;
+    // int count = 0;
+    // for (size_t i = 0; i < 64; i++) {
+    //     count += cntr & 1;
+    //     cntr >>= 1;
+    // }
+    // return count;
+
+    return popcount_64(white.bitmask);
 }
 
 int BitBoard::count_moves(Side s) {
-    int count = 0;
-    u64 cntr = (s == BLACK)?bmoves.bitmask:wmoves.bitmask;
-    for (size_t i = 0; i < 64; i++) {
-        count += cntr & 1;
-        cntr >>= 1;
-    }
-    return count;
+    // int count = 0;
+    // u64 cntr = (s == BLACK)?bmoves.bitmask:wmoves.bitmask;
+    // for (size_t i = 0; i < 64; i++) {
+    //     count += cntr & 1;
+    //     cntr >>= 1;
+    // }
+    // return count;
+    return popcount_64((s == BLACK)?bmoves.bitmask:wmoves.bitmask);
 }
 
 u64 BitBoard::stability(Side s) {

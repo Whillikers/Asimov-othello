@@ -1,0 +1,3 @@
+model_checkpoint_path: "value_net-1"
+all_model_checkpoint_paths: "value_net-0"
+all_model_checkpoint_paths: "value_net-1"
