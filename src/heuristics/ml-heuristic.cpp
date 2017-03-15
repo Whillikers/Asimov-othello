@@ -90,9 +90,11 @@ float MLHeuristic::evaluate(BitBoard &b, Side s) {
     //bb.FromProto(buf);
 
     std::vector<Tensor> outputs;
-    value_sess->Run({{"Placeholder:0", bb}}, {"Tanh_2:0"}, {}, &outputs);
-
-    return outputs[0].scalar<float>()();
+    if (value_sess != nullptr) {
+        value_sess->Run({{"Placeholder:0", bb}}, {"Tanh_2:0"}, {}, &outputs);
+        return outputs[0].scalar<float>()();
+    }
+    return 0.0;
 }
 
 /**
@@ -100,6 +102,7 @@ float MLHeuristic::evaluate(BitBoard &b, Side s) {
  * are by assigning weights to each index.
  */
 void MLHeuristic::order_moves(BitBoard &b, Side s, int n, Move *rmvs, std::pair<float, int> *mvs) {
+    return; //TODO: finish this later...
     Tensor bb(tensorflow::DT_FLOAT, tensorflow::TensorShape({1,8,8,4}));
 
     float buf[256];
@@ -118,7 +121,9 @@ void MLHeuristic::order_moves(BitBoard &b, Side s, int n, Move *rmvs, std::pair<
     //bb.FromProto(buf);
 
     std::vector<Tensor> outputs;
-    value_sess->Run({{"Placeholder:0", bb}}, {"Tanh_2:0"}, {}, &outputs);
+    if (policy_sess != nullptr) {
+        policy_sess->Run({{"Placeholder:0", bb}}, {"Tanh_2:0"}, {}, &outputs);
+        //TODO: need to add weights to mvs
+    }
 
-    //TODO: need to add weights to mvs
 }

@@ -103,10 +103,13 @@ testboard: $(addprefix $(OBJDIR)/,$(TESTBOARD_OBJS))
 	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS)
 
 
+playself-prf: LDFLAGS +=  -lprofiler
+playself-prf: playself
+
 #Program that plays the current AI against itself
-playself: DEBUGFLAGS = $(UNUSED_DEBUG_FLAGS)
+playself: DEBUGFLAGS = $(UNUSED_DEBUG_FLAGS) -O0
 playself: $(addprefix $(OBJDIR)/,$(PLAYSELF_OBJS))
-	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS) -lprofiler -ggdb
+	$(LD) -o $(BINDIR)/$@ $^ $(LDFLAGS) -ggdb
 
 #Game data parsers and logistic regression training data generators
 trainvalue: $(addprefix $(OBJDIR)/,$(ML_VALUE_TRAIN_OBJS))

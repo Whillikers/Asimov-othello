@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     }
     Side side = (!strcmp(argv[1], "Black")) ? BLACK : WHITE;
 
-    //usleep (20*1000000);
+    usleep (20*1000000);
 
     // Initialize player.
     Player *player = new Player(side);

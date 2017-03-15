@@ -21,9 +21,10 @@ Player::Player(Side side) {
     ply = 20;
     h = new Better1Heuristic();//MLHeuristic("","");
     s = new SearchAlphaBeta(h);
-    ply = 7;
-    solverDepth = 20;
+    ply = 6;
+    solverDepth = 24;
     solverH = new SolverHeuristic();
+    //search for a win in possible, to speed up searches where we will win
     if (side == BLACK) {
         solver = new SearchAlphaBeta(solverH, 0.5, 1.5);
     } else {
@@ -87,10 +88,12 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     }
 
     if (m->isPass()) {
-        if (64 - current.nmoves <= solverDepth) {
-            *m = solver->search(current, msLeft, 64 - current.nmoves, side);
-        } else {
-            cerr << "test"
+        if ((64 - current.count_black() - current.count_white()) <= solverDepth) {
+            cerr << "using solver" << endl;
+            *m = solver->search(current, msLeft, solverDepth, side);
+        } else if (msLeft < 100*1000) {
+            *m = s->search(current, msLeft, ply-1, side);
+        }
             *m = s->search(current, msLeft, ply, side);
         }
     }

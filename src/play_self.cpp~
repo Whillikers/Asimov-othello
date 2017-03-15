@@ -43,8 +43,6 @@ int main(int argc, char const *argv[]) {
 #ifdef DO_PROFILE
     ProfilerStop();
 #endif
-    
-    cout << b.count_black() << " to " << b.count_white();
 
     return 0;
 }

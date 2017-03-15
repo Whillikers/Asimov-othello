@@ -34,7 +34,7 @@ SearchAlphaBeta::~SearchAlphaBeta() {
     delete table;
 }
 
-/*
+//*
 int simulate(BitBoard &b, Side turn) {
     int n, i = 0;
     Move mvs[MAX_MOVES];
@@ -54,7 +54,7 @@ int simulate(BitBoard &b, Side turn) {
     }
     int cw = bt.count_white();
     int cb = bt.count_black();
-    return cw-cb;
+    return cb-cw;
 }
 // */
 
@@ -133,7 +133,13 @@ float SearchAlphaBeta::alpha_beta_search(BitBoard &bd, float a, float b, int d, 
     }
 
     if (d == 0) {
-        return h->evaluate(bd, turn);
+    
+        float total = 0.0;
+        for (int i = 0; i < 3; i++) {
+            total += simulate(bd, turn);
+        }
+        return total/4.0;
+        //return h->evaluate(bd, turn);
     }
 
     float g;
@@ -142,6 +148,10 @@ float SearchAlphaBeta::alpha_beta_search(BitBoard &bd, float a, float b, int d, 
     if (n == 0) {
         //pass if there are no moves
         return alpha_beta_search(bd, a, b, d-1, OTHER_SIDE(turn));
+    }
+    
+    for (int i = 0; i < n; i++) {
+        mvs[i] = make_pair(i,i);
     }
 
     //seed moves and sort them
@@ -215,7 +225,8 @@ Move SearchAlphaBeta::search(BitBoard &b, int max_time, int max_depth, Side turn
     // cerr << "Searched to depth " << d << endl << endl;
     //
     // return mbst;
-    int best = -1, n = 0;
+    bool guess_missed = true;
+    int best = 0, n = 0;
     float g;
     Move mvs[MAX_MOVES];
 
@@ -227,25 +238,28 @@ Move SearchAlphaBeta::search(BitBoard &b, int max_time, int max_depth, Side turn
 
     float alpha = low;
     float beta = high;
-    while (best == -1) {
+    
+    cerr << endl << "Searcing..." << endl;
+    
+    do {
         if (turn == BLACK) {
-            g = alpha;
+            g = -INF;
             for (int i = 0; i < n; i++) {
                 BitBoard btmp = b;
                 btmp.do_move(mvs[i], turn);
 
-                float v = alpha_beta_search(btmp, alpha, high, SEARCH_DEPTH, OTHER_SIDE(turn));
+                float v = alpha_beta_search(btmp, alpha, high, max_depth, OTHER_SIDE(turn));
 
                 SET_MAX(g, best, v, i);
                 alpha = max(alpha, g);
             }
         } else {
-            g = beta;
+            g = INF;
             for (int i = 0; i < n; i++) {
                 BitBoard btmp = b;
                 btmp.do_move(mvs[i], turn);
 
-                float v = alpha_beta_search(btmp, low, beta, SEARCH_DEPTH, OTHER_SIDE(turn));
+                float v = alpha_beta_search(btmp, low, beta, max_depth, OTHER_SIDE(turn));
 
                 SET_MIN(g, best, v, i);
                 beta = min(beta, g);
@@ -255,6 +269,9 @@ Move SearchAlphaBeta::search(BitBoard &b, int max_time, int max_depth, Side turn
         //if we fail to find a move, expand the search area
         alpha = -INF;
         beta = INF;
-    }
+    } while (false);
+    
+    cerr << "Best move: (" << mvs[best].x << "," << mvs[best].y << ") score: " << g << endl << endl;
+    
     return mvs[best];
 }
