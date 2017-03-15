@@ -1,9 +1,9 @@
 #include "player.hpp"
 #include "heuristics/basic.hpp"
-#include "heuristics/better1.hpp"
+//#include "heuristics/better1.hpp"
 #include "heuristics/h_solver.hpp"
 #include "heuristics/ml-heuristic.hpp"
-#include "search_alg/mtdf.hpp"
+//#include "search_alg/mtdf.hpp"
 #include "search_alg/minimax.hpp"
 //#include "search_alg/monte.hpp"
 #include "search_alg/alphabeta.hpp"
@@ -19,10 +19,10 @@
 Player::Player(Side side) {
     this->side = side;
     ply = 20;
-    h = new Better1Heuristic();//MLHeuristic("","");
+    h = new MLHeuristic("","");
     s = new SearchAlphaBeta(h);
     ply = 6;
-    solverDepth = 24;
+    solverDepth = 18;
     solverH = new SolverHeuristic();
     //search for a win in possible, to speed up searches where we will win
     if (side == BLACK) {
@@ -93,7 +93,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             *m = solver->search(current, msLeft, solverDepth, side);
         } else if (msLeft < 100*1000) {
             *m = s->search(current, msLeft, ply-1, side);
-        }
+        } else {
             *m = s->search(current, msLeft, ply, side);
         }
     }

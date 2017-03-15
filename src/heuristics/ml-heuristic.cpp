@@ -53,14 +53,16 @@ Status load_graph(string graph_file_name,
 
 MLHeuristic::MLHeuristic(std::string value_net_path, std::string policy_net_path) {
     //load graph
-    Status rt = load_graph("./Asimov_value_net.meta", &value_sess);
+    Status rt = load_graph("./asimov-ml_final_build/Asimov_value_net.index", &value_sess);
     if (!rt.ok()) {
         LOG(ERROR) << rt;
+        cerr << "Error loading Value Network" << endl;
     }
 
-    rt = load_graph("./Asimov_policy_net.meta", &policy_sess);
+    rt = load_graph("./asimov-ml_final_build/Asimov_policy_net.index", &policy_sess);
     if (!rt.ok()) {
         LOG(ERROR) << rt;
+        cerr << "Error loading Policy Network" << endl;
     }
 }
 
@@ -80,11 +82,11 @@ float MLHeuristic::evaluate(BitBoard &b, Side s) {
         bb2 = b.pieces(WHITE),
         bb3 = b.mobility(s);
 
-    float buf[192];
+    auto buf = bb.tensor<float, 2>();
     for (size_t i = 0; i < 64; i++) {
-        buf[i]     = U64BIT_TO_FLOAT(bb1,i);
-        buf[i+64]  = U64BIT_TO_FLOAT(bb2,i);
-        buf[i+128] = U64BIT_TO_FLOAT(bb3,i);
+        buf(0,i)     = U64BIT_TO_FLOAT(bb1,i);
+        buf(0,i+64)  = U64BIT_TO_FLOAT(bb2,i);
+        buf(0,i+128) = U64BIT_TO_FLOAT(bb3,i);
     }
 
     //bb.FromProto(buf);
@@ -92,9 +94,11 @@ float MLHeuristic::evaluate(BitBoard &b, Side s) {
     std::vector<Tensor> outputs;
     if (value_sess != nullptr) {
         value_sess->Run({{"Placeholder:0", bb}}, {"Tanh_2:0"}, {}, &outputs);
-        return outputs[0].scalar<float>()();
+        if (outputs.size() > 0) {
+            return outputs[0].scalar<float>()();
+        }
     }
-    return 0.0;
+    return b.count_black()-b.count_white();
 }
 
 /**
@@ -102,20 +106,22 @@ float MLHeuristic::evaluate(BitBoard &b, Side s) {
  * are by assigning weights to each index.
  */
 void MLHeuristic::order_moves(BitBoard &b, Side s, int n, Move *rmvs, std::pair<float, int> *mvs) {
+    
     return; //TODO: finish this later...
+    //TODO: retrain policy network.
     Tensor bb(tensorflow::DT_FLOAT, tensorflow::TensorShape({1,8,8,4}));
 
-    float buf[256];
+    auto buf = bb.tensor<float,4>();
     u64 bp = b.pieces(BLACK),
         wp = b.pieces(WHITE),
         bs = b.stability(BLACK),
         ws = b.stability(WHITE);
 
     for (size_t i = 0; i < 64; i++) {
-        buf[4*i]   = U64BIT_TO_FLOAT(bp,i);
-        buf[4*i+1] = U64BIT_TO_FLOAT(wp,i);
-        buf[4*i+2] = U64BIT_TO_FLOAT(bs,i);
-        buf[4*i+3] = U64BIT_TO_FLOAT(ws,i);
+        buf(0, i&7, (i>>3)&7, 0)   = U64BIT_TO_FLOAT(bp,i);
+        buf(0, i&7, (i>>3)&7, 1) = U64BIT_TO_FLOAT(wp,i);
+        buf(0, i&7, (i>>3)&7, 2) = U64BIT_TO_FLOAT(bs,i);
+        buf(0, i&7, (i>>3)&7, 3) = U64BIT_TO_FLOAT(ws,i);
     }
 
     //bb.FromProto(buf);
